@@ -115,8 +115,8 @@ Light:
   m_GameObject: {fileID: 309067812}
   m_Enabled: 1
   serializedVersion: 7
-  m_Type: 2
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Type: 1
+  m_Color: {r: 1, g: 0.8539554, b: 0.6691177, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
