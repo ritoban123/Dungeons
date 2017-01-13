@@ -6,8 +6,8 @@ using UnityEngine;
 public class DungeonController : MonoBehaviour
 {
     Dungeon dungeon;
-    int width = 31;
-    int height = 21;
+    int width = 301;
+    int height = 201;
     int maxRooms = 1024;
     int maxRoomAttempts = 1024;
     int minRoomSize = 4;
@@ -25,6 +25,8 @@ public class DungeonController : MonoBehaviour
             Debug.LogError("DungeonController::Start - The dungeon generation failed!");
             return;
         }
+        if (drawGizmos)
+            return;
         GetSprites();
         CreateGameObjects();
     }
@@ -43,6 +45,7 @@ public class DungeonController : MonoBehaviour
 
     private void CreateGameObjects()
     {
+        Material diffuseMat = Resources.Load<Material>("Materials/Sprites_Diffuse");
         for (int y = 0; y < dungeon.Height; y++)
         {
             Transform parent = new GameObject("Row " + y.ToString()).transform;
@@ -55,19 +58,23 @@ public class DungeonController : MonoBehaviour
                 tile_obj.transform.position = new Vector3(x - (dungeon.Width/2f + 0.5f), y - (dungeon.Height / 2f + 0.5f));
                 tile_obj.transform.SetParent(parent);
                 SpriteRenderer sr = tile_obj.AddComponent<SpriteRenderer>();
-                sr.sprite = GetSpriteForTile(tile_data);        
+                sr.sprite = GetSpriteForTile(tile_data);
+                sr.sharedMaterial = diffuseMat;
             }
         }
     }
 
-    public string RoomSpriteName = "Room_floor";
 
     public Sprite GetSpriteForTile(Tile t)
     {
         if(t.room != null)
         {
-            return AllSpritesByName[RoomSpriteName];
+            return AllSpritesByName["Cobblestone"];
         }
+        if (t.isCorridor)
+            return AllSpritesByName["Stones"];
+        if (t.IsWall)
+            return AllSpritesByName["RockWall"];
 
         return null;
     }
