@@ -636,8 +636,13 @@ MonoBehaviour:
     type: 2}
   CardArea: {fileID: 1203344320}
   PawnData:
-  - spritePath: Sprites/Pawns/Circle
-  - spritePath: Sprites/Pawns/Circle
-  - spritePath: Sprites/Pawns/Circle
-  - spritePath: Sprites/Pawns/Circle
-  - spritePath: Sprites/Pawns/Circle
+  - cardSpritePath: Sprites/Pawns/Circle
+    count: 1
+  - cardSpritePath: Sprites/Pawns/Square
+    count: 3
+  - cardSpritePath: Sprites/Pawns/Circle
+    count: 5
+  - cardSpritePath: Sprites/Pawns/Square
+    count: 21
+  - cardSpritePath: Sprites/Pawns/Circle
+    count: 2

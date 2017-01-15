@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(Image))]
+[RequireComponent(typeof(Button))]
 public class UI_PawnCard : MonoBehaviour
 {
     [HideInInspector]
@@ -11,19 +11,28 @@ public class UI_PawnCard : MonoBehaviour
     [HideInInspector]
     public Sprite sprite;
 
-    Image img;
+    public Image backImg;
+    public Text countText;
+
     void Start()
     {
-        img = GetComponent<Image>();
+        button = GetComponent<Button>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (img.sprite != sprite)
-            img.sprite = sprite;
+        if (backImg.sprite != sprite)
+            backImg.sprite = sprite;
+        countText.text = data.count.ToString();
+
+        if(data.count <= 0)
+        {
+            button.interactable = false;    
+        }
     }
 
+    Button button;
     PawnController pc;
 
     public void OnButtonClicked()
@@ -31,5 +40,6 @@ public class UI_PawnCard : MonoBehaviour
         if (pc == null)
             pc = FindObjectOfType<PawnController>();
         pc.Selected = data;
+        Debug.Log(sprite.name);
     }
 }

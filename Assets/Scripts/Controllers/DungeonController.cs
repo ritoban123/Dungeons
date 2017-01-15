@@ -6,8 +6,8 @@ using UnityEngine;
 public class DungeonController : MonoBehaviour
 {
     Dungeon dungeon;
-    int width = 301;
-    int height = 201;
+    int width = 15;
+    int height = 15;
     int maxRooms = 1024;
     int maxRoomAttempts = 1024;
     int minRoomSize = 4;
