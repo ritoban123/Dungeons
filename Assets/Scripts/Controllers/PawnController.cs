@@ -1,8 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+
+public enum State { Normal, PlacingPawn, SettingTP /* Target Position*/}
+// TODO: We should probably impement this as delegates, and call different dlegates based on the state
 
 public class PawnController : MonoBehaviour
 {
@@ -17,12 +21,16 @@ public class PawnController : MonoBehaviour
     private void Awake()
     {
         pawnGameObjectMap = new Dictionary<Pawn, GameObject>();
+        gameOjbectPawnMap = new Dictionary<GameObject, Pawn>(); // FIXME: Create a 2-way dictionary class!
         pawnCardMap = new Dictionary<PawnCardData, UI_PawnCard>();
     }
 
     Dictionary<PawnCardData, UI_PawnCard> pawnCardMap;
 
-    Dictionary<Pawn, GameObject> pawnGameObjectMap;
+    Dictionary<Pawn, GameObject> pawnGameObjectMap; // FIXME: I do not like having to remember to add to both dictionaries
+    Dictionary<GameObject, Pawn> gameOjbectPawnMap; // FIXME: We should create a data structure to manage this two way-dictionary
+
+    public State state = State.Normal;
     public Pawn[] Pawns
     {
         get
@@ -55,12 +63,37 @@ public class PawnController : MonoBehaviour
         mm.OnLeftMouseButtonUp += OnLeftMouseButtonUp;
         mm.OnRightMouseButtonUp += OnRightMouseButtonUp;
 
+        GameObject cursor = new GameObject("Cursor");
+        cursorSr = cursor.AddComponent<SpriteRenderer>();
     }
+    SpriteRenderer cursorSr;
 
     /// <summary>
     /// This is not a callback function. If the mouse was pressed, it checks a bunch of stuff, then creates a new pawn
     /// </summary>
     private void OnLeftMouseButtonUp()
+    {
+        switch (state)
+        {
+            case State.PlacingPawn:
+                LeftClick_PlacingPawn();
+                break;
+            case State.SettingTP:
+                LeftClick_SetTP();
+                break;
+        }
+    }
+
+    private void LeftClick_SetTP()
+    {
+        if (EventSystem.current.IsPointerOverGameObject())
+            return;
+        // TODO: Create a function to get rounded mouse position
+        currentSelectedPawn.TargetPosition = new Vector3(Mathf.Round(mm.WorldSpaceMousePosition.x), Mathf.Round(mm.WorldSpaceMousePosition.y));
+        state = State.Normal;
+    }
+
+    private void LeftClick_PlacingPawn()
     {
         // We can't place something if we haven't selected something! TODO: Display a message on screen: NO CARD SELECTED
         if (Selected == null)
@@ -98,22 +131,37 @@ public class PawnController : MonoBehaviour
             pawn_obj.layer = PawnLayer;
 
             pawnGameObjectMap.Add(pawn, pawn_obj);
-
+            gameOjbectPawnMap.Add(pawn_obj, pawn); // FIXME: repeated code for two way dictionaries!
             Selected = null;
+            state = State.Normal; // FIXME: I don't like having to remember to set the states manually!
         }
     }
 
     public int PawnLayer = 8;
+    public GameObject rightClickMenu;
 
+    Sprite CursorSprite;
+
+    // FIXME: This is the only state where we have a special function. We need to be consistent!
+    public void EnterSettingTPState()
+    {
+        CursorSprite = Resources.Load<Sprite>("Sprites/UI/BaseCursor");
+        state = State.SettingTP;
+    }
+
+    Pawn currentSelectedPawn;
     private void OnRightMouseButtonUp()
     {
         if (EventSystem.current.IsPointerOverGameObject() == true)
             return;
         // Is the mouse over a pawn?
         RaycastHit2D hit = Physics2D.Raycast(mm.WorldSpaceMousePosition, Camera.main.transform.forward, 15, 1 << PawnLayer);
-        if (hit.collider != null)
+        if (hit.collider != null && gameOjbectPawnMap.ContainsKey(hit.collider.gameObject))
         {
-            hit.collider.GetComponent<SpriteRenderer>().color = Random.ColorHSV();
+            // We hit a pawn!
+            currentSelectedPawn = gameOjbectPawnMap[hit.collider.gameObject];
+            rightClickMenu.SetActive(true);
+            rightClickMenu.transform.position = Input.mousePosition;
         }
     }
 
@@ -128,6 +176,26 @@ public class PawnController : MonoBehaviour
         //{
         //    OnLeftMouseButtonUp();
         //}
+        if (state == State.PlacingPawn)
+        {
+            cursorSr.color = new Color(1, 1, 1, 0.5f);
+            CursorSprite = Resources.Load<Sprite>(Selected.cardSpritePath); // FIXME: WE NEED AN ASSET MANAGER!
+        }
+        else if (state == State.Normal)
+        {
+            CursorSprite = null;
+        }
+        else
+        {
+            // Setting TP
+            cursorSr.color = new Color(1, 1, 1, 1f);
+        }
+        if (cursorSr.sprite != CursorSprite)
+        {
+            cursorSr.sprite = CursorSprite;
+        }
+
+        cursorSr.transform.position = new Vector3(Mathf.Round(mm.WorldSpaceMousePosition.x), Mathf.Round(mm.WorldSpaceMousePosition.y));
 
         foreach (Pawn p in pawnGameObjectMap.Keys)
         {

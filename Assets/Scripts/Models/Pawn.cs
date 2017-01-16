@@ -9,7 +9,7 @@ public class Pawn
     public float X { get; protected set; }
     public float Y { get; protected set; }
 
-    public Vector2 TargetPosition = UnityEngine.Random.insideUnitCircle * 20;
+    public Vector2 TargetPosition/* = UnityEngine.Random.insideUnitCircle * 20*/;
     public Vector2 Position
     {
         get
@@ -28,6 +28,7 @@ public class Pawn
         Data = data;
         X = startX;
         Y = startY;
+        TargetPosition = Position; // We don't want to start out moving!
     }
 
     /// <summary>
@@ -37,10 +38,10 @@ public class Pawn
     public void Update(float deltaTime)
     {
         // TODO: Add A* pathfinding to get to the destination the player set
-        if ((Position - TargetPosition).sqrMagnitude <= 0.02)
+        if ((Position - TargetPosition).sqrMagnitude <= 0.0005)
             return;
 
-        Vector2 movement = Position - TargetPosition;
+        Vector2 movement = TargetPosition - Position;
         Position += movement.normalized * Data.movementSpeed * deltaTime;
     }
 }
