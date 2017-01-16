@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public enum State { Normal, PlacingPawn, SettingTP /* Target Position*/}
+public enum Mode { Normal, PlacingPawn, SettingTP /* Target Position*/}
 // TODO: We should probably impement this as delegates, and call different dlegates based on the state
 
 public class PawnController : MonoBehaviour
@@ -18,6 +18,9 @@ public class PawnController : MonoBehaviour
     public PawnCardData Selected;
     //private PawnCardData selected;
 
+    /// <summary>
+    /// Called at the start of the program. Created the Dictionaries
+    /// </summary>
     private void Awake()
     {
         pawnGameObjectMap = new Dictionary<Pawn, GameObject>();
@@ -30,7 +33,7 @@ public class PawnController : MonoBehaviour
     Dictionary<Pawn, GameObject> pawnGameObjectMap; // FIXME: I do not like having to remember to add to both dictionaries
     Dictionary<GameObject, Pawn> gameOjbectPawnMap; // FIXME: We should create a data structure to manage this two way-dictionary
 
-    public State state = State.Normal;
+    public Mode mode = Mode.Normal;
     public Pawn[] Pawns
     {
         get
@@ -47,6 +50,9 @@ public class PawnController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Creates a PawnCardPrefab for each PawnCardData, Sets Selected to null, Registers the MouseManager callbacks, and creates a cursor gameobject
+    /// </summary>
     private void Start()
     {
 
@@ -69,30 +75,38 @@ public class PawnController : MonoBehaviour
     SpriteRenderer cursorSr;
 
     /// <summary>
-    /// This is not a callback function. If the mouse was pressed, it checks a bunch of stuff, then creates a new pawn
+    /// Callback registered to the mouse manager's OnLeftMouseButtonUp Action
     /// </summary>
     private void OnLeftMouseButtonUp()
     {
-        switch (state)
+        // Depending on the state call, the appropriate LeftClick function
+        switch (mode)
         {
-            case State.PlacingPawn:
+            case Mode.PlacingPawn:
                 LeftClick_PlacingPawn();
                 break;
-            case State.SettingTP:
+            case Mode.SettingTP:
                 LeftClick_SetTP();
                 break;
         }
     }
 
+    /// <summary>
+    /// We were SettingTP Mode, and we clicked. If we are not over a ui element, set the pawns target position to the mouse position
+    /// </summary>
     private void LeftClick_SetTP()
     {
         if (EventSystem.current.IsPointerOverGameObject())
             return;
         // TODO: Create a function to get rounded mouse position
         currentSelectedPawn.TargetPosition = new Vector3(Mathf.Round(mm.WorldSpaceMousePosition.x), Mathf.Round(mm.WorldSpaceMousePosition.y));
-        state = State.Normal;
+        currentSelectedPawn = null; // We shouldn't need to do this, since we are exiting setting tp mode, but just to be safe
+        mode = Mode.Normal;
     }
 
+    /// <summary>
+    /// If we are placing a pawn, create the appropriate game and model objects, add the components, and assign the sprite
+    /// </summary>
     private void LeftClick_PlacingPawn()
     {
         // We can't place something if we haven't selected something! TODO: Display a message on screen: NO CARD SELECTED
@@ -133,7 +147,7 @@ public class PawnController : MonoBehaviour
             pawnGameObjectMap.Add(pawn, pawn_obj);
             gameOjbectPawnMap.Add(pawn_obj, pawn); // FIXME: repeated code for two way dictionaries!
             Selected = null;
-            state = State.Normal; // FIXME: I don't like having to remember to set the states manually!
+            mode = Mode.Normal; // FIXME: I don't like having to remember to set the states manually!
         }
     }
 
@@ -143,15 +157,23 @@ public class PawnController : MonoBehaviour
     Sprite CursorSprite;
 
     // FIXME: This is the only state where we have a special function. We need to be consistent!
+    /// <summary>
+    /// Called by right-click menu button when entering tp setting mode
+    /// </summary>
     public void EnterSettingTPState()
     {
         CursorSprite = Resources.Load<Sprite>("Sprites/UI/BaseCursor");
-        state = State.SettingTP;
+        mode = Mode.SettingTP;
     }
 
     Pawn currentSelectedPawn;
+    /// <summary>
+    /// Callback registered to the mouse manager when the right mouse button is released
+    /// Checks if we were over a pawn and opens the right-click menu
+    /// </summary>
     private void OnRightMouseButtonUp()
     {
+        
         if (EventSystem.current.IsPointerOverGameObject() == true)
             return;
         // Is the mouse over a pawn?
@@ -165,6 +187,9 @@ public class PawnController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Called every frame. Updates the pawn position, calls their update methodsd, and makes sure the cursor is set appropriatly
+    /// </summary>
     private void Update()
     {
         //if (Input.GetMouseButtonUp(0))
@@ -176,12 +201,12 @@ public class PawnController : MonoBehaviour
         //{
         //    OnLeftMouseButtonUp();
         //}
-        if (state == State.PlacingPawn)
+        if (mode == Mode.PlacingPawn)
         {
             cursorSr.color = new Color(1, 1, 1, 0.5f);
             CursorSprite = Resources.Load<Sprite>(Selected.cardSpritePath); // FIXME: WE NEED AN ASSET MANAGER!
         }
-        else if (state == State.Normal)
+        else if (mode == Mode.Normal)
         {
             CursorSprite = null;
         }

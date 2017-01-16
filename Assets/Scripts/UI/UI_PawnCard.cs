@@ -40,7 +40,7 @@ public class UI_PawnCard : MonoBehaviour
         if (pc == null)
             pc = FindObjectOfType<PawnController>();
         pc.Selected = data;
-        pc.state = State.PlacingPawn;
+        pc.mode = Mode.PlacingPawn;
         Debug.Log(sprite.name);
     }
 }
