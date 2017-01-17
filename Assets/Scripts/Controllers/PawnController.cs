@@ -24,14 +24,14 @@ public class PawnController : MonoBehaviour
     private void Awake()
     {
         pawnGameObjectMap = new Dictionary<Pawn, GameObject>();
-        gameOjbectPawnMap = new Dictionary<GameObject, Pawn>(); // FIXME: Create a 2-way dictionary class!
+        gameObjectPawnMap = new Dictionary<GameObject, Pawn>(); // FIXME: Create a 2-way dictionary class!
         pawnCardMap = new Dictionary<PawnCardData, UI_PawnCard>();
     }
 
     Dictionary<PawnCardData, UI_PawnCard> pawnCardMap;
 
     Dictionary<Pawn, GameObject> pawnGameObjectMap; // FIXME: I do not like having to remember to add to both dictionaries
-    Dictionary<GameObject, Pawn> gameOjbectPawnMap; // FIXME: We should create a data structure to manage this two way-dictionary
+    Dictionary<GameObject, Pawn> gameObjectPawnMap; // FIXME: We should create a data structure to manage this two way-dictionary
 
     public Mode mode = Mode.Normal;
     public Pawn[] Pawns
@@ -99,7 +99,13 @@ public class PawnController : MonoBehaviour
         if (EventSystem.current.IsPointerOverGameObject())
             return;
         // TODO: Create a function to get rounded mouse position
-        currentSelectedPawn.TargetPosition = new Vector3(Mathf.Round(mm.WorldSpaceMousePosition.x), Mathf.Round(mm.WorldSpaceMousePosition.y));
+        Tile t = DungeonController.instance.dungeon.GetTileAt(Mathf.RoundToInt(mm.WorldSpaceMousePosition.x), Mathf.RoundToInt(mm.WorldSpaceMousePosition.y));
+        if(t.IsWall)
+        {
+            mode = Mode.Normal; // TODO: Display a message to the user!
+            return;
+        }
+        currentSelectedPawn.TargetPosition = new Vector3(t.X, t.Y);
         currentSelectedPawn = null; // We shouldn't need to do this, since we are exiting setting tp mode, but just to be safe
         mode = Mode.Normal;
     }
@@ -123,6 +129,14 @@ public class PawnController : MonoBehaviour
             // DONE
             // TODO: We seem to be creating gameObjects like this alot. Maybe make a GameObject creator?
             Vector2 mousePos = mm.WorldSpaceMousePosition;
+            Tile t = DungeonController.instance.dungeon.GetTileAt(Mathf.RoundToInt(mousePos.x), Mathf.RoundToInt(mousePos.y));
+            
+            if (t == null || t.room == null)
+            {
+                // We are in a corridor or a wall!
+                // TODO: Add predefined deploy points (where you have dug tunnels)
+                return;
+            }
             Pawn pawn = new Pawn(Selected, Mathf.Round(mousePos.x), Mathf.Round(mousePos.y));
             if (pawn.Data.count <= 0)
             {
@@ -145,7 +159,7 @@ public class PawnController : MonoBehaviour
             pawn_obj.layer = PawnLayer;
 
             pawnGameObjectMap.Add(pawn, pawn_obj);
-            gameOjbectPawnMap.Add(pawn_obj, pawn); // FIXME: repeated code for two way dictionaries!
+            gameObjectPawnMap.Add(pawn_obj, pawn); // FIXME: repeated code for two way dictionaries!
             Selected = null;
             mode = Mode.Normal; // FIXME: I don't like having to remember to set the states manually!
         }
@@ -173,15 +187,15 @@ public class PawnController : MonoBehaviour
     /// </summary>
     private void OnRightMouseButtonUp()
     {
-        
+
         if (EventSystem.current.IsPointerOverGameObject() == true)
             return;
         // Is the mouse over a pawn?
         RaycastHit2D hit = Physics2D.Raycast(mm.WorldSpaceMousePosition, Camera.main.transform.forward, 15, 1 << PawnLayer);
-        if (hit.collider != null && gameOjbectPawnMap.ContainsKey(hit.collider.gameObject))
+        if (hit.collider != null && gameObjectPawnMap.ContainsKey(hit.collider.gameObject))
         {
             // We hit a pawn!
-            currentSelectedPawn = gameOjbectPawnMap[hit.collider.gameObject];
+            currentSelectedPawn = gameObjectPawnMap[hit.collider.gameObject];
             rightClickMenu.SetActive(true);
             rightClickMenu.transform.position = Input.mousePosition;
         }

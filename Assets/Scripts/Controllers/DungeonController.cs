@@ -5,7 +5,11 @@ using UnityEngine;
 
 public class DungeonController : MonoBehaviour
 {
-    Dungeon dungeon;
+    public static DungeonController instance;
+
+    public Dungeon dungeon { get; protected set; }
+    //int width = 551;
+    //int height = 451;
     int width = 15;
     int height = 15;
     int maxRooms = 1024;
@@ -18,6 +22,13 @@ public class DungeonController : MonoBehaviour
     bool drawGizmos = false;
     private void Start()
     {
+        if(instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
+
         dungeon = new Dungeon(width, height, maxRooms, maxRoomAttempts, minRoomSize, maxRoomSize, extraConnectorChance, deadEndRemovalChance, 1236);
         if (dungeon == null)
         {
@@ -29,6 +40,8 @@ public class DungeonController : MonoBehaviour
             return;
         GetSprites();
         CreateGameObjects();
+
+        Camera.main.transform.position = new Vector3(dungeon.Width / 2, dungeon.Height / 2, -10);
     }
 
     Dictionary<string, Sprite> AllSpritesByName = new Dictionary<string, Sprite>();
@@ -55,7 +68,7 @@ public class DungeonController : MonoBehaviour
             // Create a parent for each row, just to keep stuff organised
             Transform parent = new GameObject("Row " + y.ToString()).transform;
             parent.parent = this.transform;
-            parent.position = new Vector3(0, y - dungeon.Height / 2f + 0.5f);
+            parent.position = new Vector3(0, y/* - dungeon.Height / 2f + 0.5f*/);
             for (int x = 0; x < dungeon.Width; x++)
             {
                 // Get the tile from the dungeon
@@ -63,7 +76,7 @@ public class DungeonController : MonoBehaviour
                 // Create an empty game object
                 GameObject tile_obj = new GameObject("Tile " + x + "_" + y);
                 // Position that gameObject
-                tile_obj.transform.position = new Vector3(x - (dungeon.Width / 2f + 0.5f), y - (dungeon.Height / 2f + 0.5f));
+                tile_obj.transform.position = new Vector3(x/* - (dungeon.Width / 2f + 0.5f)*/, y /*- (dungeon.Height / 2f + 0.5f)*/);
                 // Set the parent accordingly
                 tile_obj.transform.SetParent(parent);
                 // Add a sprite renderer
