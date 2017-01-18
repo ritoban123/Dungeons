@@ -14,8 +14,8 @@ public class Tile : IPath_Node
         this.dungeon = dungeon;
     }
 
-    public int X { get; protected set; }
-    public int Y { get; protected set; }
+    public int X { get; set; } // FIXME: Ideally, I would like to keep protected set, but interfaces don't allow accessor protection
+    public int Y { get; set; }
     public Dungeon dungeon { get; protected set; }
 
     public Room room;
@@ -151,9 +151,21 @@ public class Tile : IPath_Node
         return result.ToArray();
     }
 
+    /// <summary>
+    /// This should be non-wall neighbors!
+    /// </summary>
+    /// <returns></returns>
     IPath_Node[] IPath_Node.GetNeighbors()
     {
-        return GetNeighbors();
+        Tile[] ns =  GetNeighbors();
+        List<Tile> nwns = new List<Tile>(); // Non-wall Neighbors
+        foreach(Tile n in ns)
+        {
+            if (n.IsWall)
+                continue;
+            nwns.Add(n);
+        }
+        return nwns.ToArray();
     }
 
     public bool IsWall { get { return ((this.room == null && this.isCorridor == false && this.isConnector == false)); } }
