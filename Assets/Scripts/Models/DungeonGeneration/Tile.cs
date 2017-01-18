@@ -5,7 +5,7 @@ using System.Text;
 using UnityEngine;
 
 
-public class Tile
+public class Tile : IPath_Node
 {
     public Tile(int x, int y, Dungeon dungeon)
     {
@@ -149,6 +149,11 @@ public class Tile
                 result.Add(t);
         }
         return result.ToArray();
+    }
+
+    IPath_Node[] IPath_Node.GetNeighbors()
+    {
+        return GetNeighbors();
     }
 
     public bool IsWall { get { return ((this.room == null && this.isCorridor == false && this.isConnector == false)); } }
