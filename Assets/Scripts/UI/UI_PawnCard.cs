@@ -41,6 +41,6 @@ public class UI_PawnCard : MonoBehaviour
             pc = FindObjectOfType<PawnController>();
         pc.Selected = data;
         pc.mode = Mode.PlacingPawn;
-        Debug.Log(sprite.name);
+        //Debug.Log(sprite.name);
     }
 }

@@ -105,7 +105,7 @@ public class PawnController : MonoBehaviour
             mode = Mode.Normal; // TODO: Display a message to the user!
             return;
         }
-        currentSelectedPawn.TargetPosition = new Vector3(t.X, t.Y);
+        currentSelectedPawn.FinalTargetPosition = new Vector3(t.X, t.Y);
         currentSelectedPawn = null; // We shouldn't need to do this, since we are exiting setting tp mode, but just to be safe
         mode = Mode.Normal;
     }
@@ -239,8 +239,34 @@ public class PawnController : MonoBehaviour
         foreach (Pawn p in pawnGameObjectMap.Keys)
         {
             p.Update(Time.deltaTime);
-            pawnGameObjectMap[p].transform.position = new Vector3(p.X, p.Y);
+            pawnGameObjectMap[p].transform.position = p.Position;
         }
     }
 
+
+    void OnDrawGizmos()
+    {
+        if (pawnGameObjectMap == null)
+            return;
+        foreach(Pawn p in Pawns)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawCube(p.FinalTargetPosition, Vector3.one * 0.3f);
+            //if (p.aStar == null)
+            //{
+            //    continue;
+            //}
+
+            //Queue<IPath_Node> path = new Queue<IPath_Node>(p.aStar.path);
+            
+            //int index = 0;
+            //while (path.Count > 0)
+            //{
+            //    IPath_Node current = path.Dequeue();
+            //    index+= 20;
+            //    Gizmos.color = new Color(index/255, index/255, index/255);
+            //    Gizmos.DrawCube(new Vector3(current.X, current.Y), Vector3.one * 0.3f);
+            //}
+        }
+    }
 }

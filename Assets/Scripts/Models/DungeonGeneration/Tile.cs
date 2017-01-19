@@ -16,6 +16,20 @@ public class Tile : IPath_Node
 
     public int X { get; set; } // FIXME: Ideally, I would like to keep protected set, but interfaces don't allow accessor protection
     public int Y { get; set; }
+
+    public Vector2 Position
+    {
+        get
+        {
+            return new Vector2(X, Y);
+        }
+        set
+        {
+            X = Mathf.RoundToInt(value.x);
+            Y = Mathf.RoundToInt(value.y);
+        }
+    }
+
     public Dungeon dungeon { get; protected set; }
 
     public Room room;

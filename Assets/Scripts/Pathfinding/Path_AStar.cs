@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Priority_Queue;
 using System;
+using System.Linq;
 
 /// <summary>
 /// A class for calculating a path, given a start and end point
@@ -111,7 +112,7 @@ public class Path_AStar<TGraph> where TGraph : Path_Graph
             current = camerFrom[current];
             path.Enqueue(current);
         }
-        
+        path = new Queue<IPath_Node>(path.Reverse());
     }
 
     private int ManhattanDist(IPath_Node startNode, IPath_Node endNode)
