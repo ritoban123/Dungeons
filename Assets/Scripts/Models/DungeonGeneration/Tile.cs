@@ -165,6 +165,22 @@ public class Tile : IPath_Node
         return result.ToArray();
     }
 
+    public int MovementCost
+    {
+        get
+        {
+            // TODO: Take props (like chests/weapons/armor) into account
+            if (room != null)
+                return 50;
+            else if (isCorridor == true)
+                return 100;
+            else if (isConnector == true)
+                return 150;
+            else
+                return int.MaxValue;
+        }
+    }
+
     /// <summary>
     /// This should be non-wall neighbors!
     /// </summary>
@@ -198,5 +214,4 @@ public class Tile : IPath_Node
                 (EastNeighbor.IsWall && SouthNeighbor.IsWall && WestNeighbor.IsWall);
         }
     }
-
 }

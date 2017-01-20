@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public enum Mode { Normal, PlacingPawn, SettingTP /* Target Position*/}
+public enum Mode { Normal, PlacingPawn, SettingTP /* Target Position*/, RightClickMenu}
 // TODO: We should probably impement this as delegates, and call different dlegates based on the state
 
 public class PawnController : MonoBehaviour
@@ -88,7 +88,19 @@ public class PawnController : MonoBehaviour
             case Mode.SettingTP:
                 LeftClick_SetTP();
                 break;
+            case Mode.RightClickMenu:
+                LeftClick_RightClickMenu();
+                break;
         }
+    }
+
+    private void LeftClick_RightClickMenu()
+    {
+        if (EventSystem.current.IsPointerOverGameObject())
+            return;
+        currentSelectedPawn = null; // We shouldn't need to do this, since we are exiting setting tp mode, but just to be safe
+        rightClickMenu.SetActive(false);
+        mode = Mode.Normal;
     }
 
     /// <summary>
@@ -198,6 +210,7 @@ public class PawnController : MonoBehaviour
             currentSelectedPawn = gameObjectPawnMap[hit.collider.gameObject];
             rightClickMenu.SetActive(true);
             rightClickMenu.transform.position = Input.mousePosition;
+            mode = Mode.RightClickMenu;
         }
     }
 

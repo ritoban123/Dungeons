@@ -8,10 +8,10 @@ public class DungeonController : MonoBehaviour
     public static DungeonController instance;
 
     public Dungeon dungeon { get; protected set; }
-    //int width = 551;
-    //int height = 451;
-    int width = 101;
-    int height = 51;
+    // int width = 551;
+    // int height = 451;
+    int width = 401;
+    int height = 301;
     int maxRooms = 1024;
     int maxRoomAttempts = 1024;
     int minRoomSize = 4;
@@ -65,10 +65,11 @@ public class DungeonController : MonoBehaviour
         Material diffuseMat = Resources.Load<Material>("Materials/Sprites_Diffuse");
         for (int y = 0; y < dungeon.Height; y++)
         {
-            // Create a parent for each row, just to keep stuff organised
-            Transform parent = new GameObject("Row " + y.ToString()).transform;
-            parent.parent = this.transform;
-            parent.position = new Vector3(0, y/* - dungeon.Height / 2f + 0.5f*/);
+            //// Create a parent for each row, just to keep stuff organised
+            // NOTE: This seems to really hurt the speed at which the dungeon is generated
+            //Transform parent = new GameObject("Row " + y.ToString()).transform;
+            //parent.parent = this.transform;
+            //parent.position = new Vector3(0, y/* - dungeon.Height / 2f + 0.5f*/);
             for (int x = 0; x < dungeon.Width; x++)
             {
                 // Get the tile from the dungeon
@@ -78,7 +79,7 @@ public class DungeonController : MonoBehaviour
                 // Position that gameObject
                 tile_obj.transform.position = new Vector3(x/* - (dungeon.Width / 2f + 0.5f)*/, y /*- (dungeon.Height / 2f + 0.5f)*/);
                 // Set the parent accordingly
-                tile_obj.transform.SetParent(parent);
+                tile_obj.transform.SetParent(this.transform);
                 // Add a sprite renderer
                 SpriteRenderer sr = tile_obj.AddComponent<SpriteRenderer>();
                 // Assign the sprite. GetSpriteForTile uses some data from the Tile class and finds the appropriate sprite from a dictionary of sprites

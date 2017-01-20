@@ -66,7 +66,7 @@ public class Pawn
     public void Update(float deltaTime)
     {
         // TODO: Add A* pathfinding to get to the destination the player set
-        if ((Position - FinalTargetPosition).sqrMagnitude <= 0.003)
+        if ((Position - FinalTargetPosition).sqrMagnitude <= deltaTime * 0.4f) 
         {
             if (aStar.path.Count > 0)
                 targetPosition = aStar.path.Dequeue().Position;

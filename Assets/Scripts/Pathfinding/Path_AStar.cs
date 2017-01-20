@@ -85,7 +85,7 @@ public class Path_AStar<TGraph> where TGraph : Path_Graph
             {
                 if (closedSet.Contains(n))
                     continue;
-                int gScoreTemp = gScore[current] + 1; // TODO: Diagnol neighbors will be 14, and regular neighbors will be 10
+                int gScoreTemp = gScore[current] + n.MovementCost; // TODO: Diagnol neighbors will be 14, and regular neighbors will be 10
                 int fScoreTemp = gScoreTemp + ManhattanDist(n, endNode);
                 if (openSet.Contains(n) == false)
                 {
