@@ -5,9 +5,13 @@ using UnityEngine;
 
 public class DungeonController : MonoBehaviour
 {
-    Dungeon dungeon;
-    int width = 15;
-    int height = 15;
+    public static DungeonController instance;
+
+    public Dungeon dungeon { get; protected set; }
+    // int width = 551;
+    // int height = 451;
+    int width = 401;
+    int height = 301;
     int maxRooms = 1024;
     int maxRoomAttempts = 1024;
     int minRoomSize = 4;
@@ -18,6 +22,13 @@ public class DungeonController : MonoBehaviour
     bool drawGizmos = false;
     private void Start()
     {
+        if(instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
+
         dungeon = new Dungeon(width, height, maxRooms, maxRoomAttempts, minRoomSize, maxRoomSize, extraConnectorChance, deadEndRemovalChance, 1236);
         if (dungeon == null)
         {
@@ -29,6 +40,8 @@ public class DungeonController : MonoBehaviour
             return;
         GetSprites();
         CreateGameObjects();
+
+        Camera.main.transform.position = new Vector3(dungeon.Width / 2, dungeon.Height / 2, -10);
     }
 
     Dictionary<string, Sprite> AllSpritesByName = new Dictionary<string, Sprite>();
@@ -52,10 +65,11 @@ public class DungeonController : MonoBehaviour
         Material diffuseMat = Resources.Load<Material>("Materials/Sprites_Diffuse");
         for (int y = 0; y < dungeon.Height; y++)
         {
-            // Create a parent for each row, just to keep stuff organised
-            Transform parent = new GameObject("Row " + y.ToString()).transform;
-            parent.parent = this.transform;
-            parent.position = new Vector3(0, y - dungeon.Height / 2f + 0.5f);
+            //// Create a parent for each row, just to keep stuff organised
+            // NOTE: This seems to really hurt the speed at which the dungeon is generated
+            //Transform parent = new GameObject("Row " + y.ToString()).transform;
+            //parent.parent = this.transform;
+            //parent.position = new Vector3(0, y/* - dungeon.Height / 2f + 0.5f*/);
             for (int x = 0; x < dungeon.Width; x++)
             {
                 // Get the tile from the dungeon
@@ -63,9 +77,9 @@ public class DungeonController : MonoBehaviour
                 // Create an empty game object
                 GameObject tile_obj = new GameObject("Tile " + x + "_" + y);
                 // Position that gameObject
-                tile_obj.transform.position = new Vector3(x - (dungeon.Width / 2f + 0.5f), y - (dungeon.Height / 2f + 0.5f));
+                tile_obj.transform.position = new Vector3(x/* - (dungeon.Width / 2f + 0.5f)*/, y /*- (dungeon.Height / 2f + 0.5f)*/);
                 // Set the parent accordingly
-                tile_obj.transform.SetParent(parent);
+                tile_obj.transform.SetParent(this.transform);
                 // Add a sprite renderer
                 SpriteRenderer sr = tile_obj.AddComponent<SpriteRenderer>();
                 // Assign the sprite. GetSpriteForTile uses some data from the Tile class and finds the appropriate sprite from a dictionary of sprites

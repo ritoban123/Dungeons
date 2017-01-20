@@ -5,7 +5,7 @@ using System.Text;
 using UnityEngine;
 
 
-public class Tile
+public class Tile : IPath_Node
 {
     public Tile(int x, int y, Dungeon dungeon)
     {
@@ -14,8 +14,22 @@ public class Tile
         this.dungeon = dungeon;
     }
 
-    public int X { get; protected set; }
-    public int Y { get; protected set; }
+    public int X { get; set; } // FIXME: Ideally, I would like to keep protected set, but interfaces don't allow accessor protection
+    public int Y { get; set; }
+
+    public Vector2 Position
+    {
+        get
+        {
+            return new Vector2(X, Y);
+        }
+        set
+        {
+            X = Mathf.RoundToInt(value.x);
+            Y = Mathf.RoundToInt(value.y);
+        }
+    }
+
     public Dungeon dungeon { get; protected set; }
 
     public Room room;
@@ -151,6 +165,39 @@ public class Tile
         return result.ToArray();
     }
 
+    public int MovementCost
+    {
+        get
+        {
+            // TODO: Take props (like chests/weapons/armor) into account
+            if (room != null)
+                return 50;
+            else if (isCorridor == true)
+                return 100;
+            else if (isConnector == true)
+                return 150;
+            else
+                return int.MaxValue;
+        }
+    }
+
+    /// <summary>
+    /// This should be non-wall neighbors!
+    /// </summary>
+    /// <returns></returns>
+    IPath_Node[] IPath_Node.GetNeighbors()
+    {
+        Tile[] ns =  GetNeighbors();
+        List<Tile> nwns = new List<Tile>(); // Non-wall Neighbors
+        foreach(Tile n in ns)
+        {
+            if (n.IsWall)
+                continue;
+            nwns.Add(n);
+        }
+        return nwns.ToArray();
+    }
+
     public bool IsWall { get { return ((this.room == null && this.isCorridor == false && this.isConnector == false)); } }
     public bool EvaluateDeadEnd
     {
@@ -167,5 +214,4 @@ public class Tile
                 (EastNeighbor.IsWall && SouthNeighbor.IsWall && WestNeighbor.IsWall);
         }
     }
-
 }
