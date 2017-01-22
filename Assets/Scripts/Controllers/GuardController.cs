@@ -19,7 +19,7 @@ public class GuardController : MonoBehaviour
         while (DungeonController.instance == null || DungeonController.instance.dungeon == null)
             yield return null;
         // FIXME: We are using whether gaurds is null as an indicator of whther SpawnAllGuards has finished
-        guards = new Guard[NumberOfGuards];
+        guardGameObjectMap = new Dictionary<Guard, GameObject>(NumberOfGuards);
         SpawnAllGuards();
     }
 
@@ -53,7 +53,8 @@ public class GuardController : MonoBehaviour
         }
     }
 
-    Guard[] guards;
+    //Guard[] guards;
+    Dictionary<Guard, GameObject> guardGameObjectMap;
 
     private void SpawnGuard(int index)
     {
@@ -70,17 +71,29 @@ public class GuardController : MonoBehaviour
 
         // TODO: The GuardData also stores information about what level it should first appear in and how many it should spawn in that level
         Guard guard = new Guard(startX, startY, AllGuardData[rand.Next(AllGuardData.Length)]);
-        guards[index] = guard;
+        GameObject obj = CreateGameObjectForGuard(guard);
+        guardGameObjectMap[guard] = obj;
         
+    }
+
+    GameObject CreateGameObjectForGuard(Guard g)
+    {
+        GameObject obj = new GameObject("Guard");
+        obj.transform.parent = this.transform;
+        obj.transform.position = g.Position;
+        SpriteRenderer sr = obj.AddComponent<SpriteRenderer>();
+        sr.sprite = Resources.Load<Sprite>("Sprites/Guards/Triangle");
+        return obj;
     }
 
     private void Update()
     {
-        if (guards == null)
+        if (guardGameObjectMap == null)
             return;
-        for (int i = 0; i < guards.Length; i++)
+        foreach (Guard g in guardGameObjectMap.Keys)
         {
-            guards[i].Update(Time.deltaTime);
+            g.Update(Time.deltaTime);
+            guardGameObjectMap[g].transform.position = g.Position;
         }
     }
 }
