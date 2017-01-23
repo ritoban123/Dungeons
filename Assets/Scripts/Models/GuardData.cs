@@ -18,8 +18,8 @@ public class GuardData
     public Action<Guard, float> UpdateAction;
 
 
-    public void Initialize()
-    {
-        UpdateAction = GuardActions.BasicGuardUpdate; // TODO: Make some system where a modder can choose the update function
-    }
+    //public void Initialize()
+    //{
+    //    UpdateAction = GuardActions.BasicGuardUpdate; // TODO: Make some system where a modder can choose the update function
+    //}
 }

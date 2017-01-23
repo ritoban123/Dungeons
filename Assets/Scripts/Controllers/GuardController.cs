@@ -44,7 +44,7 @@ public class GuardController : MonoBehaviour
     {
         for (int i = 0; i < AllGuardData.Length; i++)
         {
-            AllGuardData[i].Initialize(); // HACK: This is just to assign the UpdateAction
+            AllGuardData[i].UpdateAction = GuardActions.BasicGuardUpdate; // This function should handle everything (including states and specific values for each guard)
         }
         for (int i = 0; i < NumberOfGuards; i++)
         {

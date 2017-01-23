@@ -10,8 +10,8 @@ public class DungeonController : MonoBehaviour
     public Dungeon dungeon { get; protected set; }
     // int width = 551;
     // int height = 451;
-    int width = 101;
-    int height = 51;
+    int width = 201;
+    int height = 101;
     int maxRooms = 1024;
     int maxRoomAttempts = 1024;
     int minRoomSize = 4;

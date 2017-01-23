@@ -26,7 +26,30 @@ public class Guard
         X = startX;
         Y = startY;
         Data = guardData;
+
+        patrolState = new PatrolState(this);
+        alertState = new AlertState(this);
+        chaseState = new ChaseState(this);
+
+        CurrentState = patrolState;
     }
+
+    public IGuardState CurrentState { get; set; } // QUESTION: Should we override the default settter?
+    public PatrolState patrolState;
+    public AlertState alertState;
+    public ChaseState chaseState;
+
+    /*
+     * The Guards follow a state machine:
+     *  Patrol - The Guards are moving between several randomly selected waypoints
+     *  Alert - The Guard has either seen or heard a noise, and is looking around for the threat 
+     *      Pawn can hide during Alert State. Guard can ignore Alert
+     *  Chase - The Guard has identified the threat, and is attempting to follow it
+     *      The threat must remain withing 20 units of the guards current position
+     *  
+     *  After each alert, the chance that the guard will ignore an alert decreases
+     *  A Chasing gaurd can alert other gaurds nearby
+     */ 
 
     public void Update(float deltaTime)
     {
