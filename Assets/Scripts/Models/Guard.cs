@@ -80,6 +80,8 @@ public class Guard
             // At this point, we have found a valid position
             PatrolWayPoints.Add(t.Position);
         }
+        WaypointQueue = new Queue<Vector2>(PatrolWayPoints);
+        AdvancePath();
     }
 
     public IGuardState CurrentState { get; set; } // QUESTION: Should we override the default settter?
@@ -88,7 +90,38 @@ public class Guard
     public ChaseState chaseState;
 
     public List<Vector2> PatrolWayPoints { get; protected set; }
+    Queue<Vector2> WaypointQueue;
+    public Vector2 NextWayPoint;
+    public Vector2 NextTargetPosition;
 
+    Path_AStar<Path_TileGraph> aStar;
+
+    public void MoveToNextWaypoint()
+    {
+        //Debug.Log("Guard::MoveToNextWaypoint");
+        NextWayPoint = WaypointQueue.Dequeue();
+        IPath_Node startNode = PathfindingController.instance.tileGraph.dungeon.GetTileAt(Mathf.RoundToInt(X), Mathf.RoundToInt(Y));
+        IPath_Node endNode = PathfindingController.instance.tileGraph.dungeon.GetTileAt(Mathf.RoundToInt(NextWayPoint.x), Mathf.RoundToInt(NextWayPoint.y));
+        aStar = new Path_AStar<Path_TileGraph>(PathfindingController.instance.tileGraph, startNode, endNode);
+        aStar.CalculatePath();
+        if (aStar.path == null || aStar.path.Count == 0)
+        {
+            Debug.LogError("A* path is null or empty!");
+            //return;
+        }
+        //aStar.path.Dequeue(); // HACK: Disposing of the first element (where we are right now)
+        //aStar.path.Dequeue(); // HACK: The first points in the path seems to be (0,0) for some reaon
+    }
+
+    public void AdvancePath()
+    {
+        if (aStar == null || aStar.path == null || aStar.path.Count == 0)
+        {
+            MoveToNextWaypoint();
+        }
+        NextTargetPosition = aStar.path.Dequeue().Position;
+        //Debug.Log(NextTargetPosition);
+    }
     /*
      * The Guards follow a state machine:
      *  Patrol - The Guards are moving between several randomly selected waypoints

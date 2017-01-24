@@ -83,6 +83,7 @@ public class GuardController : MonoBehaviour
         obj.transform.position = g.Position;
         SpriteRenderer sr = obj.AddComponent<SpriteRenderer>();
         sr.sprite = Resources.Load<Sprite>("Sprites/Guards/Triangle");
+        sr.color = Color.red; // TODO: Eventually, use a separate graphic for the guards (and animation maybe?)
         return obj;
     }
 

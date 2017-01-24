@@ -29,7 +29,7 @@ public class DungeonController : MonoBehaviour
         }
         instance = this;
 
-        dungeon = new Dungeon(width, height, maxRooms, maxRoomAttempts, minRoomSize, maxRoomSize, extraConnectorChance, deadEndRemovalChance, (int)Network.time);
+        dungeon = new Dungeon(width, height, maxRooms, maxRoomAttempts, minRoomSize, maxRoomSize, extraConnectorChance, deadEndRemovalChance, 1236);
         if (dungeon == null)
         {
             // the dungeon generation failed for some reason
