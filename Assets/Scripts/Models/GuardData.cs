@@ -17,6 +17,9 @@ public class GuardData
     // These functions will probably be read from a separate file (that will be easily moddable)
     public Action<Guard, float> UpdateAction;
 
+    public int numberOfWaypoints = 3;
+
+    public float waypointRadius = 20f;
 
     //public void Initialize()
     //{

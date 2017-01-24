@@ -1,6 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+using Random = System.Random;
 
 public class Guard
 {
@@ -32,12 +35,59 @@ public class Guard
         chaseState = new ChaseState(this);
 
         CurrentState = patrolState;
+
+        PatrolWayPoints = new List<Vector2>();
+        SetRandomPatrolPoints(guardData.numberOfWaypoints);
+    }
+
+    Random rand
+    {
+        get
+        {
+            return DungeonController.instance.dungeon.rand; // FIXME: Create a gameManager that stores the System.Random
+        }
+    }
+
+    Dungeon dungeon
+    {
+        get
+        {
+            return DungeonController.instance.dungeon;
+        }
+    }
+
+    private void SetRandomPatrolPoints(int numOfPoints)
+    {
+        for (int i = 0; i < numOfPoints; i++)
+        {
+            Vector2 pos = Vector2.zero;
+            if (dungeon == null)
+            {
+                Debug.Log("Dungeon is Null!");
+                return;
+            }
+            Tile t = null;
+            while (t == null || t.room == null)
+            {
+                float r = (float)rand.NextDouble();
+                r = Mathf.Sqrt(r);
+                r *= Data.waypointRadius;
+                float theta = (float)rand.NextDouble();
+                theta *= Mathf.PI * 2;
+                pos = (new Vector2(r * Mathf.Cos(theta), r * Mathf.Sin(theta)));
+                t = dungeon.GetTileAt((int)pos.x + (int)X, (int)pos.y + (int)Y);
+            }
+            // At this point, we have found a valid position
+            PatrolWayPoints.Add(t.Position);
+        }
     }
 
     public IGuardState CurrentState { get; set; } // QUESTION: Should we override the default settter?
     public PatrolState patrolState;
     public AlertState alertState;
     public ChaseState chaseState;
+
+    public List<Vector2> PatrolWayPoints { get; protected set; }
 
     /*
      * The Guards follow a state machine:

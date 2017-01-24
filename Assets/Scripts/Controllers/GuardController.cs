@@ -73,7 +73,7 @@ public class GuardController : MonoBehaviour
         Guard guard = new Guard(startX, startY, AllGuardData[rand.Next(AllGuardData.Length)]);
         GameObject obj = CreateGameObjectForGuard(guard);
         guardGameObjectMap[guard] = obj;
-        
+
     }
 
     GameObject CreateGameObjectForGuard(Guard g)
@@ -94,6 +94,20 @@ public class GuardController : MonoBehaviour
         {
             g.Update(Time.deltaTime);
             guardGameObjectMap[g].transform.position = g.Position;
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (guardGameObjectMap == null)
+            return;
+        foreach (Guard g in guardGameObjectMap.Keys)
+        {
+            foreach (Vector2 pos in g.PatrolWayPoints)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawCube(pos, Vector2.one * 0.3f);
+            }
         }
     }
 }

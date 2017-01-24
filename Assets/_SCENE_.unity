@@ -802,10 +802,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c320fa243e79e5646b455c7d38ceaa13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NumberOfGuards: 1
+  NumberOfGuards: 50
   AllGuardData:
   - MovementSpeed: 3
+    numberOfWaypoints: 8
+    waypointRadius: 30
   - MovementSpeed: 3
+    numberOfWaypoints: 10
+    waypointRadius: 18
 --- !u!1 &1671330404
 GameObject:
   m_ObjectHideFlags: 0
