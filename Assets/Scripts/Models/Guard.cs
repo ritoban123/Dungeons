@@ -99,6 +99,8 @@ public class Guard
     public void MoveToNextWaypoint()
     {
         //Debug.Log("Guard::MoveToNextWaypoint");
+        if (WaypointQueue.Count <= 0)
+            WaypointQueue = new Queue<Vector2>(PatrolWayPoints);
         NextWayPoint = WaypointQueue.Dequeue();
         IPath_Node startNode = PathfindingController.instance.tileGraph.dungeon.GetTileAt(Mathf.RoundToInt(X), Mathf.RoundToInt(Y));
         IPath_Node endNode = PathfindingController.instance.tileGraph.dungeon.GetTileAt(Mathf.RoundToInt(NextWayPoint.x), Mathf.RoundToInt(NextWayPoint.y));
