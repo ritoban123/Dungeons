@@ -38,6 +38,8 @@ public class Guard
 
         PatrolWayPoints = new List<Vector2>();
         SetRandomPatrolPoints(guardData.numberOfWaypoints);
+
+        GuardParameters = new Dictionary<string, float>();
     }
 
     Random rand
@@ -81,7 +83,7 @@ public class Guard
             PatrolWayPoints.Add(t.Position);
         }
         WaypointQueue = new Queue<Vector2>(PatrolWayPoints);
-        AdvancePath();
+        AdvancePath(MoveToNextWaypoint);
     }
 
     public IGuardState CurrentState { get; set; } // QUESTION: Should we override the default settter?
@@ -94,7 +96,7 @@ public class Guard
     public Vector2 NextWayPoint;
     public Vector2 NextTargetPosition;
 
-    Path_AStar<Path_TileGraph> aStar;
+    public Path_AStar<Path_TileGraph> aStar { get; protected set; }
 
     public void MoveToNextWaypoint()
     {
@@ -102,10 +104,8 @@ public class Guard
         if (WaypointQueue.Count <= 0)
             WaypointQueue = new Queue<Vector2>(PatrolWayPoints);
         NextWayPoint = WaypointQueue.Dequeue();
-        IPath_Node startNode = PathfindingController.instance.tileGraph.dungeon.GetTileAt(Mathf.RoundToInt(X), Mathf.RoundToInt(Y));
         IPath_Node endNode = PathfindingController.instance.tileGraph.dungeon.GetTileAt(Mathf.RoundToInt(NextWayPoint.x), Mathf.RoundToInt(NextWayPoint.y));
-        aStar = new Path_AStar<Path_TileGraph>(PathfindingController.instance.tileGraph, startNode, endNode);
-        aStar.CalculatePath();
+        ChangeDestination(endNode);
         if (aStar.path == null || aStar.path.Count == 0)
         {
             Debug.LogError("A* path is null or empty!");
@@ -115,26 +115,86 @@ public class Guard
         //aStar.path.Dequeue(); // HACK: The first points in the path seems to be (0,0) for some reaon
     }
 
-    public void AdvancePath()
+    public void AdvancePath(Action onPathComplete)
     {
-        if (aStar == null || aStar.path == null || aStar.path.Count == 0)
+        if ((aStar == null || aStar.path == null || aStar.path.Count == 0) && onPathComplete != null)
         {
-            MoveToNextWaypoint();
+            onPathComplete();
         }
-        NextTargetPosition = aStar.path.Dequeue().Position;
+        if(aStar.path.Count > 0)
+            NextTargetPosition = aStar.path.Dequeue().Position;
         //Debug.Log(NextTargetPosition);
+    }
+
+    public void ChangeDestination(IPath_Node dest)
+    {
+        IPath_Node startNode = PathfindingController.instance.tileGraph.dungeon.GetTileAt(Mathf.RoundToInt(X), Mathf.RoundToInt(Y));
+        if (aStar == null)
+            aStar = new Path_AStar<Path_TileGraph>(PathfindingController.instance.tileGraph, startNode, dest);
+        else
+        {
+            aStar.startNode = startNode;
+            aStar.endNode = dest;
+        }
+        aStar.CalculatePath();
     }
     /*
      * The Guards follow a state machine:
-     *  Patrol - The Guards are moving between several randomly selected waypoints
-     *  Alert - The Guard has either seen or heard a noise, and is looking around for the threat 
+     *  PatrolState - The Guards are moving between several randomly selected waypoints
+     *  AlertState - The Guard has either seen or heard a noise, and is looking around for the threat 
      *      Pawn can hide during Alert State. Guard can ignore Alert
-     *  Chase - The Guard has identified the threat, and is attempting to follow it
+     *  ChaseState - The Guard has identified the threat, and is attempting to follow it
      *      The threat must remain withing 20 units of the guards current position
      *  
      *  After each alert, the chance that the guard will ignore an alert decreases
      *  A Chasing gaurd can alert other gaurds nearby
-     */ 
+     */
+
+    public Pawn AlertedPawn = null;
+
+    // This is a dictionary that allows the guardActions to set parameters that belong to a specific guard
+    public Dictionary<string, float> GuardParameters { get; protected set; }
+
+    /// <summary>
+    /// Returns a parameter set in the GuardParameters dictioanry.
+    /// </summary>
+    /// <param name="key">The string key that you are trying to get</param>
+    /// <param name="defaultValue">The value that should be returned if the key is not in the dictionary</param>
+    /// <returns></returns>
+    public float GetParameter(string key, float defaultValue = 0)
+    {
+        if (GuardParameters.ContainsKey(key) == false)
+        {
+            return defaultValue;
+        }
+        return GuardParameters[key];
+    }
+
+    /// <summary>
+    /// Sets a parameter in the GuardParameters dictionary. Will add parameter if doesn't exist.
+    /// </summary>
+    /// <param name="key">The string key that you want to set</param>
+    /// <param name="value">The value that you want to set it to</param>
+    public void SetParameter(string key, float value)
+    {
+        if (GuardParameters.ContainsKey(key) == false)
+        {
+            GuardParameters.Add(key, value);
+            return;
+        }
+        GuardParameters[key] = value;
+    }
+
+    /// <summary>
+    /// Adds value to the current value in the dictioanry
+    /// </summary>
+    /// <param name="key">The key to change</param>
+    /// <param name="value">The value you want to change by</param>
+    /// <param name="defaultValue">If the key doesn't exist, it will be created with this default value, and the value will then be added</param>
+    public void ChangeParameter(string key, float value, float defaultValue = 0)
+    {
+        SetParameter(key, value + GetParameter(key, defaultValue));
+    }
 
     public void Update(float deltaTime)
     {

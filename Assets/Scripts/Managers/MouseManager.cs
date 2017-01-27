@@ -10,6 +10,7 @@ public class MouseManager : MonoBehaviour
     public event Action OnLeftMouseButtonUp;
     public event Action OnRightMouseButtonUp;
 
+    [HideInInspector]
     public Vector2 WorldSpaceMousePosition;
 
     private void Awake()

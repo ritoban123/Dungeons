@@ -6,8 +6,20 @@ using Random = System.Random;
 
 public class GuardController : MonoBehaviour
 {
+    public static GuardController instance;
+
     public int NumberOfGuards = 10; // TODO: Let the level number decide the number of guards OR Let the guardData decide how many guards in each level
     public GuardData[] AllGuardData;
+
+    private void Awake()
+    {
+        if(instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
+    }
 
     private void Start()
     {
@@ -20,6 +32,7 @@ public class GuardController : MonoBehaviour
             yield return null;
         // FIXME: We are using whether gaurds is null as an indicator of whther SpawnAllGuards has finished
         guardGameObjectMap = new Dictionary<Guard, GameObject>(NumberOfGuards);
+        gameObjectGuardMap = new Dictionary<GameObject, Guard>(NumberOfGuards);
         SpawnAllGuards();
     }
 
@@ -55,6 +68,7 @@ public class GuardController : MonoBehaviour
 
     //Guard[] guards;
     Dictionary<Guard, GameObject> guardGameObjectMap;
+    Dictionary<GameObject, Guard> gameObjectGuardMap; // FIXME: Create a data structure to handle both of the dictioanries at the same time
 
     private void SpawnGuard(int index)
     {
@@ -73,9 +87,29 @@ public class GuardController : MonoBehaviour
         Guard guard = new Guard(startX, startY, AllGuardData[rand.Next(AllGuardData.Length)]);
         GameObject obj = CreateGameObjectForGuard(guard);
         guardGameObjectMap[guard] = obj;
-
+        gameObjectGuardMap[obj] = guard;
     }
 
+    public Guard GetGuardForGameObject(GameObject obj)
+    {
+        if(gameObjectGuardMap.ContainsKey(obj) == false)
+        {
+            Debug.LogError(obj.name + " is not a guard");
+            return null;
+        }
+        return gameObjectGuardMap[obj];
+    }
+
+
+    public GameObject GetGameObjectForGuard(Guard g)
+    {
+        if (guardGameObjectMap.ContainsKey(g) == false)
+        {
+            Debug.LogError("Guard at " +  g.Position + " is not a guard");
+            return null;
+        }
+        return guardGameObjectMap[g];
+    }
     GameObject CreateGameObjectForGuard(Guard g)
     {
         GameObject obj = new GameObject("Guard");
@@ -107,8 +141,9 @@ public class GuardController : MonoBehaviour
             foreach (Vector2 pos in g.PatrolWayPoints)
             {
                 Gizmos.color = Color.red;
-                Gizmos.DrawCube(pos, Vector2.one * 0.3f);
+                //Gizmos.DrawCube(pos, Vector2.one * 0.3f);
             }
+            Gizmos.DrawWireSphere(g.Position, g.Data.alertRadius);
         }
     }
 }

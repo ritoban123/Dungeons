@@ -21,6 +21,12 @@ public class GuardData
 
     public float waypointRadius = 20f;
 
+    public float alertRadius = 12f;
+
+    public float alertTime = 3f;
+
+    public float maxChaseRadius = 12f;
+
     //public void Initialize()
     //{
     //    UpdateAction = GuardActions.BasicGuardUpdate; // TODO: Make some system where a modder can choose the update function

@@ -48,12 +48,12 @@ public class DungeonController : MonoBehaviour
 
     private void GetSprites()
     {
-        Sprite[] sprites = Resources.LoadAll<Sprite>("Sprites");
+        Sprite[] sprites = Resources.LoadAll<Sprite>("Sprites"); // FIXME: create an asset manager
         foreach (Sprite s in sprites)
         {
             AllSpritesByName.Add(s.name, s);
-            spriteNrmMap.Add(s, 
-                Resources.Load<Texture>("Sprites/" + s.name + "_nrm")
+            spriteNrmMap.Add(s,
+                Resources.Load<Texture>("Sprites/" + s.name + "_nrm") // FIXME: Create an asset manager
             ); // FIXME: Hard coding in name
         }
     }
@@ -87,8 +87,16 @@ public class DungeonController : MonoBehaviour
                 // Make sure the sprite renderer is using the bumped diffuse material (should allow batching)
                 sr.sharedMaterial = diffuseMat;
                 // If we successfully found a sprite, check our Dictionary that links sprites and normal maps to assign the appropriate normal map.
-                if(sr.sprite != null && spriteNrmMap[sr.sprite] != null)
+                if (sr.sprite != null && spriteNrmMap[sr.sprite] != null)
                     sr.material.SetTexture("_BumpMap", spriteNrmMap[sr.sprite]);
+
+                // If it is a wall, add a box collider and set it to the correct layer
+                if (tile_data.IsWall)
+                {
+                    BoxCollider2D bc2d = tile_obj.AddComponent<BoxCollider2D>();
+                    tile_obj.layer = 9; // FIXME: Hard-coding in layer number
+                    // ALERT: For now, there is no need to set these as triggers. This may become nescessary in the future
+                }
             }
         }
     }

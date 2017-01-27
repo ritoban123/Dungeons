@@ -12,8 +12,8 @@ using System.Linq;
 public class Path_AStar<TGraph> where TGraph : Path_Graph
 {
     public TGraph Graph { get; protected set; }
-    public IPath_Node startNode { get; protected set; }
-    public IPath_Node endNode { get; protected set; }
+    public IPath_Node startNode { get; set; } // NOTE: Public set because we want other things to be able to recalculate the path without having to garbage collect the Path_AStar object. 
+    public IPath_Node endNode { get; set; }
 
     public Path_AStar(TGraph graph, IPath_Node startNode, IPath_Node endNode)
     {
