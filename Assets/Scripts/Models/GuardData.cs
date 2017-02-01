@@ -27,6 +27,17 @@ public class GuardData
 
     public float maxChaseRadius = 12f;
 
+    // FIXME: This may not be the most accurate, but it works
+    public float hearingDistance = 5f;
+
+    public float sqrHearingDist
+    {
+        get
+        {
+            return hearingDistance * hearingDistance;
+        }
+    }
+
     //public void Initialize()
     //{
     //    UpdateAction = GuardActions.BasicGuardUpdate; // TODO: Make some system where a modder can choose the update function

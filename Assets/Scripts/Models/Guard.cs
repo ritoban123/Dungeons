@@ -165,7 +165,7 @@ public class Guard
     {
         if (GuardParameters.ContainsKey(key) == false)
         {
-            return defaultValue;
+            GuardParameters.Add(key, defaultValue);
         }
         return GuardParameters[key];
     }

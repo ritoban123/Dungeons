@@ -237,11 +237,12 @@ public class PawnController : MonoBehaviour
         if (EventSystem.current.IsPointerOverGameObject() == true)
             return;
         // Is the mouse over a pawn?
-        RaycastHit2D hit = Physics2D.Raycast(mm.WorldSpaceMousePosition, Camera.main.transform.forward, 15, 1 << PawnLayer);
-        if (hit.collider != null && gameObjectPawnMap.ContainsKey(hit.collider.gameObject))
+        GameObject hit = mm.GameObjectUnderMouse;
+        //RaycastHit2D hit = Physics2D.Raycast(mm.WorldSpaceMousePosition, Camera.main.transform.forward, 15, 1 << PawnLayer);
+        if (hit != null && gameObjectPawnMap.ContainsKey(hit))
         {
             // We hit a pawn!
-            currentSelectedPawn = gameObjectPawnMap[hit.collider.gameObject];
+            currentSelectedPawn = gameObjectPawnMap[hit];
             rightClickMenu.SetActive(true);
             rightClickMenu.transform.position = Input.mousePosition;
             mode = Mode.RightClickMenu;

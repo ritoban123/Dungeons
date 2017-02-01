@@ -5,12 +5,28 @@ using Priority_Queue;
 using System;
 using System.Linq;
 
+public struct PathData
+{
+    public PathData(IPath_Node startNode, IPath_Node endNode)
+    {
+        this.startNode = startNode;
+        this.endNode = endNode;
+    }
+
+    public IPath_Node startNode { get; set; }
+    public IPath_Node endNode { get; set; }
+}
+
 /// <summary>
 /// A class for calculating a path, given a start and end point
 /// </summary>
 /// <typeparam name="T">The Graph Type </typeparam>
 public class Path_AStar<TGraph> where TGraph : Path_Graph
 {
+    public static Dictionary<PathData, Queue<IPath_Node>> precalculatedPaths = new Dictionary<PathData, Queue<IPath_Node>>();
+
+
+
     public TGraph Graph { get; protected set; }
     public IPath_Node startNode { get; set; } // NOTE: Public set because we want other things to be able to recalculate the path without having to garbage collect the Path_AStar object. 
     public IPath_Node endNode { get; set; }
@@ -28,6 +44,11 @@ public class Path_AStar<TGraph> where TGraph : Path_Graph
 
     public void CalculatePath()
     {
+        if (precalculatedPaths.ContainsKey(new PathData(startNode, endNode)))
+        {
+            path = precalculatedPaths[new PathData(startNode, endNode)];
+            return;
+        }
         // The set of nodes already evaluated
         HashSet<IPath_Node> closedSet = new HashSet<IPath_Node>();
         // The set of currenty discovered nodes that have not been evaluated
@@ -74,14 +95,14 @@ public class Path_AStar<TGraph> where TGraph : Path_Graph
         while (openSet.Count > 0)
         {
             IPath_Node current = openSet.Dequeue();
-            if(current == endNode)
+            if (current == endNode)
             {
                 // WE DID IT!
                 ReconstructPath(cameFrom, current);
                 return;
             }
             closedSet.Add(current);
-            foreach(IPath_Node n in current.GetNeighbors())
+            foreach (IPath_Node n in current.GetNeighbors())
             {
                 if (closedSet.Contains(n))
                     continue;
@@ -107,12 +128,13 @@ public class Path_AStar<TGraph> where TGraph : Path_Graph
     {
         path = new Queue<IPath_Node>();
         path.Enqueue(current);
-        while(camerFrom.ContainsKey(current))
+        while (camerFrom.ContainsKey(current))
         {
             current = camerFrom[current];
             path.Enqueue(current);
         }
         path = new Queue<IPath_Node>(path.Reverse());
+        precalculatedPaths.Add(new PathData(startNode, endNode), path);
     }
 
     private int ManhattanDist(IPath_Node startNode, IPath_Node endNode)

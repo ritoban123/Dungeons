@@ -67,8 +67,8 @@ public class GuardController : MonoBehaviour
     }
 
     //Guard[] guards;
-    Dictionary<Guard, GameObject> guardGameObjectMap;
-    Dictionary<GameObject, Guard> gameObjectGuardMap; // FIXME: Create a data structure to handle both of the dictioanries at the same time
+    public Dictionary<Guard, GameObject> guardGameObjectMap { get; protected set; }
+    public Dictionary<GameObject, Guard> gameObjectGuardMap { get; protected set; } // FIXME: Create a data structure to handle both of the dictioanries at the same time
 
     private void SpawnGuard(int index)
     {
@@ -92,9 +92,10 @@ public class GuardController : MonoBehaviour
 
     public Guard GetGuardForGameObject(GameObject obj)
     {
-        if(gameObjectGuardMap.ContainsKey(obj) == false)
+        if(obj == null || gameObjectGuardMap.ContainsKey(obj) == false)
         {
-            Debug.LogError(obj.name + " is not a guard");
+            // ALERT: We are calmly returning null!
+            //Debug.LogError(obj.name + " is not a guard"); 
             return null;
         }
         return gameObjectGuardMap[obj];
@@ -103,13 +104,17 @@ public class GuardController : MonoBehaviour
 
     public GameObject GetGameObjectForGuard(Guard g)
     {
-        if (guardGameObjectMap.ContainsKey(g) == false)
+        if (g == null || guardGameObjectMap.ContainsKey(g) == false)
         {
-            Debug.LogError("Guard at " +  g.Position + " is not a guard");
+            // ALERT: We are calmly returning null!
+
+            //Debug.LogError("Guard at " +  g.Position + " is not a guard");
             return null;
         }
         return guardGameObjectMap[g];
     }
+
+    // TODO: Guards and pawns are becoming increasingly similar. Maybe create a gameObjectManager to create gameobjects?
     GameObject CreateGameObjectForGuard(Guard g)
     {
         GameObject obj = new GameObject("Guard");
@@ -118,6 +123,11 @@ public class GuardController : MonoBehaviour
         SpriteRenderer sr = obj.AddComponent<SpriteRenderer>();
         sr.sprite = Resources.Load<Sprite>("Sprites/Guards/Triangle");
         sr.color = Color.red; // TODO: Eventually, use a separate graphic for the guards (and animation maybe?)
+
+        // Add collider to guard
+        BoxCollider2D bc2d = obj.AddComponent<BoxCollider2D>();
+        obj.layer = 10; // FIXME: Hard coding. Maybe create a layer manager?
+
         return obj;
     }
 
