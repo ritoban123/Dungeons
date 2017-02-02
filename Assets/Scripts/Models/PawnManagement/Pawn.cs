@@ -13,7 +13,7 @@ public class Pawn
     
     // FIXME: This is a misnomer. It get returns the next one in the patch, set calculates a path to the final target position.
     // we may need to separate these two out later
-    public Vector2 FinalTargetPosition
+    public Vector2 TargetPosition
     {
         get
         {
@@ -23,6 +23,7 @@ public class Pawn
         {
             if (value != targetPosition)
             {
+                FinalTargetPosition = value;
                 IPath_Node startNode = PathfindingController.instance.tileGraph.dungeon.GetTileAt(Mathf.RoundToInt(X), Mathf.RoundToInt(Y));
                 IPath_Node endNode = PathfindingController.instance.tileGraph.dungeon.GetTileAt(Mathf.RoundToInt(value.x), Mathf.RoundToInt(value.y));
                 aStar = new Path_AStar<Path_TileGraph>(PathfindingController.instance.tileGraph, startNode, endNode);
@@ -34,6 +35,8 @@ public class Pawn
             targetPosition = aStar.path.Dequeue().Position;
         }
     }
+
+    public Vector2 FinalTargetPosition;
 
 
     public Vector2 Position
@@ -56,7 +59,7 @@ public class Pawn
         Data = data;
         X = startX;
         Y = startY;
-        FinalTargetPosition = Position; // We don't want to start out moving!
+        TargetPosition = Position; // We don't want to start out moving!
     }
 
     /// <summary>
@@ -66,14 +69,14 @@ public class Pawn
     public void Update(float deltaTime)
     {
         // TODO: Add A* pathfinding to get to the destination the player set
-        if ((Position - FinalTargetPosition).sqrMagnitude <= deltaTime * 0.4f) 
+        if ((Position - TargetPosition).sqrMagnitude <= deltaTime * 0.4f) 
         {
             if (aStar.path.Count > 0)
                 targetPosition = aStar.path.Dequeue().Position;
             else
                 return;
         }
-        Vector2 movement = FinalTargetPosition - Position;
+        Vector2 movement = TargetPosition - Position;
         Position += movement.normalized * Data.movementSpeed * deltaTime;
     }
 

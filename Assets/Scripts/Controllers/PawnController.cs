@@ -10,6 +10,7 @@ public enum Mode { Normal, PlacingPawn, SettingTP /* Target Position*/, RightCli
 
 public class PawnController : MonoBehaviour
 {
+    public static PawnController instance;
 
     public GameObject PawnCardPrefab;
     public Transform CardArea;
@@ -23,6 +24,12 @@ public class PawnController : MonoBehaviour
     /// </summary>
     private void Awake()
     {
+        if(instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
         pawnGameObjectMap = new Dictionary<Pawn, GameObject>();
         gameObjectPawnMap = new Dictionary<GameObject, Pawn>(); // FIXME: Create a 2-way dictionary class!
         pawnCardMap = new Dictionary<PawnCardData, UI_PawnCard>();
@@ -48,6 +55,32 @@ public class PawnController : MonoBehaviour
         {
             return MouseManager.instance;
         }
+    }
+
+    public Pawn GetPawn(GameObject obj)
+    {
+        if(IsGameObjectPawn(obj) == false)
+        {
+            Debug.LogError(obj.name + " is not a pawn gameObject");
+            return null;
+        }
+        return gameObjectPawnMap[obj];
+    }
+
+    /// <summary>
+    /// Returns If a gameObject is a pawn (parented to PawnController)
+    /// </summary>
+    /// <param name="obj">The object that is possibly a pawn</param>
+    /// <returns>True if the object is a pawn gameobject</returns>
+    public bool IsGameObjectPawn(GameObject obj)
+    {
+        // FIXME: This relies on the fact that pawn gameobjects are parented to this. 
+        // If we end up having to change the pawn parent at some point, we should check if the gameobject is in the gameobjectpawnmap
+
+        if (obj.transform.parent == this.transform)
+            return true;
+        else
+            return false;
     }
 
     /// <summary>
@@ -117,7 +150,7 @@ public class PawnController : MonoBehaviour
             mode = Mode.Normal; // TODO: Display a message to the user!
             return;
         }
-        currentSelectedPawn.FinalTargetPosition = new Vector3(t.X, t.Y);
+        currentSelectedPawn.TargetPosition = new Vector3(t.X, t.Y);
         currentSelectedPawn = null; // We shouldn't need to do this, since we are exiting setting tp mode, but just to be safe
         mode = Mode.Normal;
     }
@@ -168,6 +201,7 @@ public class PawnController : MonoBehaviour
             sr.sprite = Resources.Load<Sprite>(pawn.Data.cardSpritePath); // Eventually, this will be a separate sprite
 
             BoxCollider2D bc2d = pawn_obj.AddComponent<BoxCollider2D>(); // NOTE: The default fit should work fine, because the sprites are 1x1
+            bc2d.isTrigger = true; // NOTE: Raycasts must be blocked by triggers
             pawn_obj.layer = PawnLayer;
 
             pawnGameObjectMap.Add(pawn, pawn_obj);
@@ -203,11 +237,12 @@ public class PawnController : MonoBehaviour
         if (EventSystem.current.IsPointerOverGameObject() == true)
             return;
         // Is the mouse over a pawn?
-        RaycastHit2D hit = Physics2D.Raycast(mm.WorldSpaceMousePosition, Camera.main.transform.forward, 15, 1 << PawnLayer);
-        if (hit.collider != null && gameObjectPawnMap.ContainsKey(hit.collider.gameObject))
+        GameObject hit = mm.GameObjectUnderMouse;
+        //RaycastHit2D hit = Physics2D.Raycast(mm.WorldSpaceMousePosition, Camera.main.transform.forward, 15, 1 << PawnLayer);
+        if (hit != null && gameObjectPawnMap.ContainsKey(hit))
         {
             // We hit a pawn!
-            currentSelectedPawn = gameObjectPawnMap[hit.collider.gameObject];
+            currentSelectedPawn = gameObjectPawnMap[hit];
             rightClickMenu.SetActive(true);
             rightClickMenu.transform.position = Input.mousePosition;
             mode = Mode.RightClickMenu;
@@ -264,7 +299,7 @@ public class PawnController : MonoBehaviour
         foreach(Pawn p in Pawns)
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawCube(p.FinalTargetPosition, Vector3.one * 0.3f);
+            Gizmos.DrawCube(p.TargetPosition, Vector3.one * 0.3f);
             //if (p.aStar == null)
             //{
             //    continue;
