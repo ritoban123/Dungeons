@@ -30,6 +30,8 @@ public class GuardData
     // FIXME: This may not be the most accurate, but it works
     public float hearingDistance = 5f;
 
+    public int maxHealth = 100;
+
     public float sqrHearingDist
     {
         get

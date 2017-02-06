@@ -42,6 +42,7 @@ public static class GuardActions
             g.CurrentState.ChangeState(GuardState.AlertState);
             return;
         }
+        
     }
 
     public static int PawnLayerMask = (1 << PAWN_LAYER_NUMBER);
@@ -63,8 +64,9 @@ public static class GuardActions
         // TODO: Play turning animation during this stage. Maybe perform line of sight every frame instead? And stop when you see something?
         // NOTE: Actions may not work when we move this to lua (it will probably be replaced by a string)
         Action expire = null;
-        // TEMP: Jujst to see that a guard has entered alert state
-        //sGuardController.instance.GetGameObjectForGuard(g).GetComponent<SpriteRenderer>().color = Color.green;
+
+
+
         expire = () =>
         {
             if (g.AlertedPawn == null)
@@ -84,6 +86,7 @@ public static class GuardActions
                         //g.SetParameter("lastAlertedPawnX", g.AlertedPawn.FinalTargetPosition.y);
                         //g.SetParameter("lastAlertedPawnY", g.AlertedPawn.FinalTargetPosition.y);
 
+                        // FIXME: How do guards magically deduce where you want to go? This looks extremely unrealistic 
                         // NOTE: Getting the dungeon directly from the DungeonController would have been easier, but this might work better if at some point Tile does not inherit from IPath_Node
                         g.ChangeDestination(PathfindingController.instance.tileGraph.dungeon.GetTileAt(Mathf.RoundToInt(g.AlertedPawn.FinalTargetPosition.x), Mathf.RoundToInt(g.AlertedPawn.FinalTargetPosition.y)));
                         return;

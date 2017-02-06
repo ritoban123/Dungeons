@@ -199,6 +199,7 @@ public class PawnController : MonoBehaviour
             //      Will we have a regular animator component on all the gameObjects
             //      or should we have an animator controller script that manages animations?
             sr.sprite = Resources.Load<Sprite>(pawn.Data.cardSpritePath); // Eventually, this will be a separate sprite
+            sr.sortingLayerName = "Pawns";
 
             BoxCollider2D bc2d = pawn_obj.AddComponent<BoxCollider2D>(); // NOTE: The default fit should work fine, because the sprites are 1x1
             bc2d.isTrigger = true; // NOTE: Raycasts must be blocked by triggers
@@ -263,6 +264,7 @@ public class PawnController : MonoBehaviour
         //{
         //    OnLeftMouseButtonUp();
         //}
+        // FIXME: Why is the PawnController Managing the cursor stuff!
         if (mode == Mode.PlacingPawn)
         {
             cursorSr.color = new Color(1, 1, 1, 0.5f);

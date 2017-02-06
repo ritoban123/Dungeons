@@ -123,7 +123,7 @@ public class GuardController : MonoBehaviour
         SpriteRenderer sr = obj.AddComponent<SpriteRenderer>();
         sr.sprite = Resources.Load<Sprite>("Sprites/Guards/Triangle");
         sr.color = Color.red; // TODO: Eventually, use a separate graphic for the guards (and animation maybe?)
-
+        sr.sortingLayerName = "Guards";
         // Add collider to guard
         BoxCollider2D bc2d = obj.AddComponent<BoxCollider2D>();
         obj.layer = 10; // FIXME: Hard coding. Maybe create a layer manager?

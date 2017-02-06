@@ -5,7 +5,7 @@ using UnityEngine;
 
 using Random = System.Random;
 
-public class Guard
+public class Guard : Damageable
 {
     public float X { get; protected set; }
     public float Y { get; protected set; }
@@ -40,6 +40,8 @@ public class Guard
         SetRandomPatrolPoints(guardData.numberOfWaypoints);
 
         GuardParameters = new Dictionary<string, float>();
+
+        Health = MaxHealth;
     }
 
     Random rand
@@ -86,6 +88,27 @@ public class Guard
         AdvancePath(MoveToNextWaypoint);
     }
 
+
+    #region Damagable
+
+    public override int Health { get; protected set;  }
+    public override int MaxHealth { get { return Data.maxHealth; } }
+
+    // NOTE: No point in doing this now, but maybe call TakeDamage callback later
+    public override void TakeDamage(int amount)
+    {
+        base.TakeDamage(amount);
+    }
+
+    public override void Death()
+    {
+        //throw new NotImplementedException();
+    }
+
+    #endregion
+
+    // FIXME: Maybe we should create an PathFinding Agent Object, which Guard will inherit from?
+    #region AStar
     public IGuardState CurrentState { get; set; } // QUESTION: Should we override the default settter?
     public PatrolState patrolState;
     public AlertState alertState;
@@ -149,7 +172,9 @@ public class Guard
      *  After each alert, the chance that the guard will ignore an alert decreases
      *  A Chasing gaurd can alert other gaurds nearby
      */
+    #endregion
 
+    #region Guard State Machine
     public Pawn AlertedPawn = null;
 
     // This is a dictionary that allows the guardActions to set parameters that belong to a specific guard
@@ -195,6 +220,8 @@ public class Guard
     {
         SetParameter(key, value + GetParameter(key, defaultValue));
     }
+
+    #endregion
 
     public void Update(float deltaTime)
     {

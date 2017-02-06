@@ -10,8 +10,8 @@ public class DungeonController : MonoBehaviour
     public Dungeon dungeon { get; protected set; }
     // int width = 551;
     // int height = 451;
-    int width = 201;
-    int height = 101;
+    public int width = 201;
+    public int height = 101;
     int maxRooms = 1024;
     int maxRoomAttempts = 1024;
     int minRoomSize = 4;
@@ -20,14 +20,20 @@ public class DungeonController : MonoBehaviour
     float extraConnectorChance = 0.025f;
 
     bool drawGizmos = false;
-    private void Start()
+
+    private void Awake()
     {
-        if(instance != null)
+        if (instance != null && instance != this)
         {
             Destroy(gameObject);
             return;
         }
         instance = this;
+
+    }
+
+    private void Start()
+    {
 
         dungeon = new Dungeon(width, height, maxRooms, maxRoomAttempts, minRoomSize, maxRoomSize, extraConnectorChance, deadEndRemovalChance, 1236);
         if (dungeon == null)
@@ -89,6 +95,8 @@ public class DungeonController : MonoBehaviour
                 // If we successfully found a sprite, check our Dictionary that links sprites and normal maps to assign the appropriate normal map.
                 if (sr.sprite != null && spriteNrmMap[sr.sprite] != null)
                     sr.material.SetTexture("_BumpMap", spriteNrmMap[sr.sprite]);
+
+                sr.sortingLayerName = "Dungeon";
 
                 // If it is a wall, add a box collider and set it to the correct layer
                 if (tile_data.IsWall)

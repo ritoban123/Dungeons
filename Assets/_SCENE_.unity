@@ -868,6 +868,50 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: Set Target Position
+--- !u!1 &1476775643
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1476775644}
+  - component: {fileID: 1476775645}
+  m_Layer: 0
+  m_Name: HealthDisplayController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1476775644
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1476775643}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1862357422}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1476775645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1476775643}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcb4fd2fd05cc4f44beddd9dd4e3b445, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WorldSpaceCanvasPrefab: {fileID: 1043940403301228, guid: a5b178db7e728f74682ee4068346f792,
+    type: 2}
+  HealthCirclePrefab: {fileID: 1704723402406030, guid: 5edb11cc2b1a7be4096648c7f892c2d1,
+    type: 2}
 --- !u!1 &1499878094
 GameObject:
   m_ObjectHideFlags: 0
@@ -958,6 +1002,7 @@ MonoBehaviour:
     alertTime: 1
     maxChaseRadius: 12
     hearingDistance: 3
+    maxHealth: 100
   - MovementSpeed: 2
     numberOfWaypoints: 10
     waypointRadius: 18
@@ -965,6 +1010,7 @@ MonoBehaviour:
     alertTime: 1
     maxChaseRadius: 12
     hearingDistance: 6
+    maxHealth: 100
 --- !u!1 &1671330404
 GameObject:
   m_ObjectHideFlags: 0
@@ -1074,6 +1120,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db3f55f46b4ee4f49a737d21224de37f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  width: 201
+  height: 101
 --- !u!1 &1806574327
 GameObject:
   m_ObjectHideFlags: 0
@@ -1212,6 +1260,7 @@ Transform:
   - {fileID: 1379841273}
   - {fileID: 1575086674}
   - {fileID: 1499878095}
+  - {fileID: 1476775644}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
