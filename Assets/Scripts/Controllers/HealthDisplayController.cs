@@ -4,12 +4,27 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
+// FIXME: This should be a view instead!
 public class HealthDisplayController : MonoBehaviour
 {
+    // FIXME: Create a base controller class that already implements instancing
+    public static HealthDisplayController instance;
+
+
     public GameObject WorldSpaceCanvasPrefab;
     public GameObject HealthCirclePrefab;
 
     protected GameObject WorldSpaceCanvas;
+
+    private void Awake()
+    {
+        if(instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
+    }
 
     private void Start()
     {
@@ -20,29 +35,30 @@ public class HealthDisplayController : MonoBehaviour
         // HACK: We want the prefabs to be as 'default' as possible, so the canvas pivot is in the middle
         rect.position = new Vector2(DungeonController.instance.width/2, DungeonController.instance.height/2);
 
-        StartCoroutine(WaitUntilGuardGenerationComplete());
+        StartCoroutine(WaitUntilGenerationComplete());
         InvokeRepeating("TakeDamageRepeatedly", 5, 1.2f);
     }
 
     // FIXME: Create a Controller Base Class which has an on complete callback!
-    IEnumerator WaitUntilGuardGenerationComplete()
+    IEnumerator WaitUntilGenerationComplete()
     {
         // FIXME: This is not perfect! 
         while (GuardController.instance == null || GuardController.instance.guardGameObjectMap == null)
             yield return null;
-        CreateHealthCircles();
+        CreateGuardHealthCircles();
     }
 
     protected Dictionary<Damageable, Image> DamageableImageMap = new Dictionary<Damageable, Image>();
 
-    protected void CreateHealthCircles()
+    protected void CreateGuardHealthCircles()
     {
 
         Guard[] guards = GuardController.instance.guardGameObjectMap.Keys.ToArray<Guard>();
         for (int i = 0; i < guards.Length; i++)
         {
-            GameObject healthCircle = Instantiate(HealthCirclePrefab, guards[i].Position, Quaternion.identity, WorldSpaceCanvas.transform);
-            DamageableImageMap.Add(guards[i], healthCircle.GetComponent<Image>());
+            //GameObject healthCircle = Instantiate(HealthCirclePrefab, guards[i].Position, Quaternion.identity, WorldSpaceCanvas.transform);
+            //DamageableImageMap.Add(guards[i], healthCircle.GetComponent<Image>());
+            AddHealthCircle(guards[i]);
         }
     }
 
@@ -55,17 +71,20 @@ public class HealthDisplayController : MonoBehaviour
         }
     }
 
+    public void AddHealthCircle(Damageable d)
+    {
+        GameObject healthCircle = Instantiate(HealthCirclePrefab, d.Position, Quaternion.identity, WorldSpaceCanvas.transform);
+        DamageableImageMap.Add(d, healthCircle.GetComponent<Image>());
+    }
+
     private void Update()
     {
         foreach (Damageable d in DamageableImageMap.Keys)
         {
             DamageableImageMap[d].fillAmount = (float)d.Health / (float)d.MaxHealth;
             DamageableImageMap[d].color = Color.Lerp(Color.red, Color.green, (float)d.Health / (float)d.MaxHealth);
+            DamageableImageMap[d].transform.position = d.Position;
         }
-        // FIXME: Why don't damageables need a position?
-        foreach (Guard g in DamageableImageMap.Keys)
-        {
-            DamageableImageMap[g].transform.position = g.Position;
-        }
+
     }
 }

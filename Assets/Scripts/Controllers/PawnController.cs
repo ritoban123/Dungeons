@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public enum Mode { Normal, PlacingPawn, SettingTP /* Target Position*/, RightClickMenu}
+public enum Mode { Normal, PlacingPawn, SettingTP /* Target Position*/, RightClickMenu }
 // TODO: We should probably impement this as delegates, and call different dlegates based on the state
 
 public class PawnController : MonoBehaviour
@@ -24,7 +24,7 @@ public class PawnController : MonoBehaviour
     /// </summary>
     private void Awake()
     {
-        if(instance != null && instance != this)
+        if (instance != null && instance != this)
         {
             Destroy(gameObject);
             return;
@@ -33,7 +33,28 @@ public class PawnController : MonoBehaviour
         pawnGameObjectMap = new Dictionary<Pawn, GameObject>();
         gameObjectPawnMap = new Dictionary<GameObject, Pawn>(); // FIXME: Create a 2-way dictionary class!
         pawnCardMap = new Dictionary<PawnCardData, UI_PawnCard>();
+
+
+        OnNewPawnCreated += PawnController_OnNewPawnCreated;
     }
+
+    private void PawnController_OnNewPawnCreated(Pawn p)
+    {
+        //foreach (Pawn p in pawnGameObjectMap.Keys)
+        //{
+        //    p.Update(Time.deltaTime);
+        //    pawnGameObjectMap[p].transform.position = p.Position;
+        //}
+        HealthDisplayController.instance.AddHealthCircle(p);
+
+        GameManager.instance.OnUpdate += (float deltaTime) =>
+        {
+            p.Update(deltaTime);
+            pawnGameObjectMap[p].transform.position = p.Position;
+        };
+    }
+
+    public event Action<Pawn> OnNewPawnCreated;
 
     Dictionary<PawnCardData, UI_PawnCard> pawnCardMap;
 
@@ -59,7 +80,7 @@ public class PawnController : MonoBehaviour
 
     public Pawn GetPawn(GameObject obj)
     {
-        if(IsGameObjectPawn(obj) == false)
+        if (IsGameObjectPawn(obj) == false)
         {
             Debug.LogError(obj.name + " is not a pawn gameObject");
             return null;
@@ -145,7 +166,7 @@ public class PawnController : MonoBehaviour
             return;
         // TODO: Create a function to get rounded mouse position
         Tile t = DungeonController.instance.dungeon.GetTileAt(Mathf.RoundToInt(mm.WorldSpaceMousePosition.x), Mathf.RoundToInt(mm.WorldSpaceMousePosition.y));
-        if(t.IsWall)
+        if (t.IsWall)
         {
             mode = Mode.Normal; // TODO: Display a message to the user!
             return;
@@ -175,7 +196,7 @@ public class PawnController : MonoBehaviour
             // TODO: We seem to be creating gameObjects like this alot. Maybe make a GameObject creator?
             Vector2 mousePos = mm.WorldSpaceMousePosition;
             Tile t = DungeonController.instance.dungeon.GetTileAt(Mathf.RoundToInt(mousePos.x), Mathf.RoundToInt(mousePos.y));
-            
+
             if (t == null || t.room == null)
             {
                 // We are in a corridor or a wall!
@@ -209,6 +230,9 @@ public class PawnController : MonoBehaviour
             gameObjectPawnMap.Add(pawn_obj, pawn); // FIXME: repeated code for two way dictionaries!
             Selected = null;
             mode = Mode.Normal; // FIXME: I don't like having to remember to set the states manually!
+
+
+            OnNewPawnCreated(pawn);
         }
     }
 
@@ -286,11 +310,13 @@ public class PawnController : MonoBehaviour
 
         cursorSr.transform.position = new Vector3(Mathf.Round(mm.WorldSpaceMousePosition.x), Mathf.Round(mm.WorldSpaceMousePosition.y));
 
-        foreach (Pawn p in pawnGameObjectMap.Keys)
-        {
-            p.Update(Time.deltaTime);
-            pawnGameObjectMap[p].transform.position = p.Position;
-        }
+
+
+        //foreach (Pawn p in pawnGameObjectMap.Keys)
+        //{
+        //    p.Update(Time.deltaTime);
+        //    pawnGameObjectMap[p].transform.position = p.Position;
+        //}
     }
 
 
@@ -298,7 +324,7 @@ public class PawnController : MonoBehaviour
     {
         if (pawnGameObjectMap == null)
             return;
-        foreach(Pawn p in Pawns)
+        foreach (Pawn p in Pawns)
         {
             Gizmos.color = Color.red;
             Gizmos.DrawCube(p.TargetPosition, Vector3.one * 0.3f);
@@ -308,7 +334,7 @@ public class PawnController : MonoBehaviour
             //}
 
             //Queue<IPath_Node> path = new Queue<IPath_Node>(p.aStar.path);
-            
+
             //int index = 0;
             //while (path.Count > 0)
             //{

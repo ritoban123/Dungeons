@@ -38,6 +38,7 @@ GameObject:
   - component: {fileID: 224051921809896182}
   - component: {fileID: 222956545677646856}
   - component: {fileID: 114426685970855324}
+  - component: {fileID: 225021284674409242}
   m_Layer: 11
   m_Name: HealthCircle
   m_TagString: Untagged
@@ -148,3 +149,14 @@ RectTransform:
   m_AnchoredPosition: {x: -0.0000019073486, y: 0}
   m_SizeDelta: {x: 2, y: 2}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!225 &225021284674409242
+CanvasGroup:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1704723402406030}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0

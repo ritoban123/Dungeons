@@ -9,7 +9,7 @@ public class Guard : Damageable
 {
     public float X { get; protected set; }
     public float Y { get; protected set; }
-    public Vector2 Position
+    public override Vector2 Position
     {
         get
         {
@@ -21,6 +21,8 @@ public class Guard : Damageable
             Y = value.y;
         }
     }
+
+
 
     public GuardData Data { get; protected set; }
 

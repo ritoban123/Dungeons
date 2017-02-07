@@ -3,14 +3,39 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Pawn
+public class Pawn : Damageable
 {
     public PawnCardData Data;
     public float X { get; protected set; }
     public float Y { get; protected set; }
 
-    private Vector2 targetPosition;
-    
+    public override Vector2 Position
+    {
+        get
+        {
+            return new Vector2(X, Y);
+        }
+        set
+        {
+            X = value.x;
+            Y = value.y;
+        }
+    }
+
+    public override int MaxHealth
+    {
+        get
+        {
+            return Data.maxHealth;
+        }
+    }
+
+    public override void Death()
+    {
+        throw new NotImplementedException();
+    }
+
+    #region AStar
     // FIXME: This is a misnomer. It get returns the next one in the patch, set calculates a path to the final target position.
     // we may need to separate these two out later
     public Vector2 TargetPosition
@@ -35,22 +60,10 @@ public class Pawn
             targetPosition = aStar.path.Dequeue().Position;
         }
     }
+    private Vector2 targetPosition;
 
     public Vector2 FinalTargetPosition;
 
-
-    public Vector2 Position
-    {
-        get
-        {
-            return new Vector2(X, Y);
-        }
-        set
-        {
-            X = value.x;
-            Y = value.y;
-        }
-    }
 
     public Path_AStar<Path_TileGraph> aStar;
 
@@ -60,7 +73,9 @@ public class Pawn
         X = startX;
         Y = startY;
         TargetPosition = Position; // We don't want to start out moving!
+        Health = data.maxHealth;
     }
+
 
     /// <summary>
     /// Should be called evry frame. Moves X and Y Position toward Target Position
@@ -95,4 +110,6 @@ public class Pawn
     //        Gizmos.DrawCube(new Vector3(current.X, current.Y), Vector3.one * 0.3f);
     //    }
     //}
+
+#endregion
 }

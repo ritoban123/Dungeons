@@ -1365,18 +1365,23 @@ MonoBehaviour:
   - cardSpritePath: Sprites/Pawns/Circle
     count: 1
     movementSpeed: 5
+    maxHealth: 100
   - cardSpritePath: Sprites/Pawns/Square
     count: 3
     movementSpeed: 2
+    maxHealth: 50
   - cardSpritePath: Sprites/Pawns/Circle
     count: 5
     movementSpeed: 5
+    maxHealth: 75
   - cardSpritePath: Sprites/Pawns/Square
     count: 21
     movementSpeed: 2
+    maxHealth: 20
   - cardSpritePath: Sprites/Pawns/Circle
     count: 2
     movementSpeed: 5
+    maxHealth: 300
   mode: 0
   PawnLayer: 8
   rightClickMenu: {fileID: 1806574327}

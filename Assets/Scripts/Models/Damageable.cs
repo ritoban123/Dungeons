@@ -8,7 +8,8 @@ public abstract class Damageable
     // FIXME: trusting child classes to assign MAxHEalth to health
     public virtual int Health { get; protected set; }
     public abstract int MaxHealth { get; }
-
+    // FIXME: There is no reason why Damageables need a Position setter. 
+    public abstract Vector2 Position { get; set; }
 
     /// <summary>
     /// Reduce the health. Call the Death function if Health less than 0
