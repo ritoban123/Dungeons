@@ -47,11 +47,31 @@ public class PawnController : MonoBehaviour
         //}
         HealthDisplayController.instance.AddHealthCircle(p);
 
-        GameManager.instance.OnUpdate += (float deltaTime) =>
+        Action<float> updateAction = (float deltaTime) =>
         {
             p.Update(deltaTime);
             pawnGameObjectMap[p].transform.position = p.Position;
         };
+
+        GameManager.instance.OnUpdate += updateAction;
+        pawnUpdateActionMap.Add(p, updateAction);
+
+        p.OnDeath += OnPawnDath;
+    }
+
+    Dictionary<Pawn, Action<float>> pawnUpdateActionMap = new Dictionary<Pawn, Action<float>>();
+
+
+    private void OnPawnDath(Pawn p)
+    {
+        // TODO: Play a beautiful death animation with funeral music!
+        // For now, just delete the pawn from the 2 dictionaries
+        GameObject obj = pawnGameObjectMap[p];
+        pawnGameObjectMap.Remove(p);
+        gameObjectPawnMap.Remove(obj);
+        Destroy(obj);
+        GameManager.instance.OnUpdate -= pawnUpdateActionMap[p]; // HACK to get a copy of the update function!
+        HealthDisplayController.instance.RemoveHealthCircle(p);
     }
 
     public event Action<Pawn> OnNewPawnCreated;

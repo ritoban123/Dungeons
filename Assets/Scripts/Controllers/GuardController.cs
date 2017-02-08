@@ -85,9 +85,38 @@ public class GuardController : MonoBehaviour
 
         // TODO: The GuardData also stores information about what level it should first appear in and how many it should spawn in that level
         Guard guard = new Guard(startX, startY, AllGuardData[rand.Next(AllGuardData.Length)]);
+        //foreach (Guard g in guardGameObjectMap.Keys)
+        //{
+        //    g.Update(Time.deltaTime);
+        //    guardGameObjectMap[g].transform.position = g.Position;
+        //}
+
+
+
         GameObject obj = CreateGameObjectForGuard(guard);
         guardGameObjectMap[guard] = obj;
         gameObjectGuardMap[obj] = guard;
+
+        Action<float> updateAction = (deltaTime) => { guard.Update(deltaTime); obj.transform.position = guard.Position; };
+
+        GameManager.instance.OnUpdate += updateAction;
+        guardUpdateActionMap.Add(guard, updateAction);
+
+        guard.OnDeath += OnGuardDeath;
+    }
+
+    protected Dictionary<Guard, Action<float>> guardUpdateActionMap = new Dictionary<Guard, Action<float>>();
+
+    protected void OnGuardDeath(Guard g)
+    {
+        // TODO: Play a beautiful death animation with funeral music!
+        // For now, just delete the pawn from the 2 dictionaries
+        GameObject obj = GetGameObjectForGuard(g);
+        guardGameObjectMap.Remove(g);
+        gameObjectGuardMap.Remove(obj); 
+        Destroy(obj);
+        GameManager.instance.OnUpdate -= guardUpdateActionMap[g]; // HACK to get a copy of the update function!
+        HealthDisplayController.instance.RemoveHealthCircle(g);
     }
 
     public Guard GetGuardForGameObject(GameObject obj)
@@ -114,7 +143,7 @@ public class GuardController : MonoBehaviour
         return guardGameObjectMap[g];
     }
 
-    // TODO: Guards and pawns are becoming increasingly similar. Maybe create a gameObjectManager to create gameobjects?
+    // TODO: Guards and pawn gameObjects are becoming increasingly similar. Maybe create a gameObjectManager to create gameobjects?
     GameObject CreateGameObjectForGuard(Guard g)
     {
         GameObject obj = new GameObject("Guard");
@@ -135,11 +164,12 @@ public class GuardController : MonoBehaviour
     {
         if (guardGameObjectMap == null)
             return;
-        foreach (Guard g in guardGameObjectMap.Keys)
-        {
-            g.Update(Time.deltaTime);
-            guardGameObjectMap[g].transform.position = g.Position;
-        }
+        // NOTE: Implementing this the same way as the pawns
+        //foreach (Guard g in guardGameObjectMap.Keys)
+        //{
+        //    g.Update(Time.deltaTime);
+        //    guardGameObjectMap[g].transform.position = g.Position;
+        //}
     }
 
     private void OnDrawGizmos()

@@ -65,7 +65,9 @@ public class HealthDisplayController : MonoBehaviour
 
     void TakeDamageRepeatedly()
     {
-        foreach (Damageable d in DamageableImageMap.Keys)
+        // HACK to ensure that we are not iterating over the dictionary while modifying it in another method
+        List<Damageable> keys = new List<Damageable>(DamageableImageMap.Keys);
+        foreach (Damageable d in keys)
         {
             d.TakeDamage(5);
         }
@@ -75,6 +77,14 @@ public class HealthDisplayController : MonoBehaviour
     {
         GameObject healthCircle = Instantiate(HealthCirclePrefab, d.Position, Quaternion.identity, WorldSpaceCanvas.transform);
         DamageableImageMap.Add(d, healthCircle.GetComponent<Image>());
+    }
+
+    public void RemoveHealthCircle(Damageable d)
+    {
+        //GameObject healthCircle = Instantiate(HealthCirclePrefab, d.Position, Quaternion.identity, WorldSpaceCanvas.transform);
+        //DamageableImageMap.Add(d, healthCircle.GetComponent<Image>());
+        Destroy(DamageableImageMap[d].gameObject);
+        DamageableImageMap.Remove(d);
     }
 
     private void Update()

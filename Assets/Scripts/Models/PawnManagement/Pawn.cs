@@ -30,9 +30,14 @@ public class Pawn : Damageable
         }
     }
 
+    public event Action<Pawn> OnDeath;
+
     public override void Death()
     {
-        throw new NotImplementedException();
+        if(OnDeath != null)
+        {
+            OnDeath(this); 
+        }
     }
 
     #region AStar

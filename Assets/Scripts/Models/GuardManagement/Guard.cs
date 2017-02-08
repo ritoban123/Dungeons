@@ -102,9 +102,14 @@ public class Guard : Damageable
         base.TakeDamage(amount);
     }
 
+    public event Action<Guard> OnDeath;
+
     public override void Death()
     {
-        //throw new NotImplementedException();
+        if (OnDeath != null)
+        {
+            OnDeath(this);
+        }
     }
 
     #endregion

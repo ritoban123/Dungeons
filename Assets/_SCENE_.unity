@@ -1002,7 +1002,7 @@ MonoBehaviour:
     alertTime: 1
     maxChaseRadius: 12
     hearingDistance: 3
-    maxHealth: 100
+    maxHealth: 20
   - MovementSpeed: 2
     numberOfWaypoints: 10
     waypointRadius: 18
@@ -1011,6 +1011,30 @@ MonoBehaviour:
     maxChaseRadius: 12
     hearingDistance: 6
     maxHealth: 100
+  - MovementSpeed: 2
+    numberOfWaypoints: 32
+    waypointRadius: 25
+    alertRadius: 8
+    alertTime: 1
+    maxChaseRadius: 12
+    hearingDistance: 6
+    maxHealth: 40
+  - MovementSpeed: 2
+    numberOfWaypoints: 10
+    waypointRadius: 16
+    alertRadius: 8
+    alertTime: 1
+    maxChaseRadius: 12
+    hearingDistance: 6
+    maxHealth: 60
+  - MovementSpeed: 2
+    numberOfWaypoints: 10
+    waypointRadius: 28
+    alertRadius: 8
+    alertTime: 1
+    maxChaseRadius: 12
+    hearingDistance: 6
+    maxHealth: 80
 --- !u!1 &1671330404
 GameObject:
   m_ObjectHideFlags: 0
