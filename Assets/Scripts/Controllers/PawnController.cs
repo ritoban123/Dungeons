@@ -47,31 +47,46 @@ public class PawnController : MonoBehaviour
         //}
         HealthDisplayController.instance.AddHealthCircle(p);
 
-        Action<float> updateAction = (float deltaTime) =>
+        Action<float> updateAction = null;
+
+        updateAction = (float deltaTime) =>
         {
+            if(pawnGameObjectMap.ContainsKey(p) == false)
+            {
+                GameManager.instance.OnUpdate -= updateAction;
+                return;
+            }
             p.Update(deltaTime);
             pawnGameObjectMap[p].transform.position = p.Position;
         };
 
         GameManager.instance.OnUpdate += updateAction;
-        pawnUpdateActionMap.Add(p, updateAction);
+        //pawnUpdateActionMap.Add(p, updateAction);
 
-        p.OnDeath += OnPawnDath;
+        p.OnDeath += OnPawnDeath;
     }
 
-    Dictionary<Pawn, Action<float>> pawnUpdateActionMap = new Dictionary<Pawn, Action<float>>();
+    //Dictionary<Pawn, Action<float>> pawnUpdateActionMap = new Dictionary<Pawn, Action<float>>();
 
 
-    private void OnPawnDath(Pawn p)
+    private void OnPawnDeath(Pawn p)
     {
         // TODO: Play a beautiful death animation with funeral music!
         // For now, just delete the pawn from the 2 dictionaries
+        if(pawnGameObjectMap.ContainsKey(p) == false)
+        {
+            //Debug.Log(pawnGameObjectMap.ContainsKey(p));
+            return;
+        }
         GameObject obj = pawnGameObjectMap[p];
+        //GameManager.instance.OnUpdate -= pawnUpdateActionMap[p];
+        HealthDisplayController.instance.RemoveHealthCircle(p);
+        // ALERT: I'm probably not garbage collecting everything properly, but its ok
         pawnGameObjectMap.Remove(p);
         gameObjectPawnMap.Remove(obj);
+       // pawnUpdateActionMap.Remove(p); // FIXME: Too many dictionaries to remove stuff from
         Destroy(obj);
-        GameManager.instance.OnUpdate -= pawnUpdateActionMap[p]; // HACK to get a copy of the update function!
-        HealthDisplayController.instance.RemoveHealthCircle(p);
+        
     }
 
     public event Action<Pawn> OnNewPawnCreated;
@@ -117,11 +132,14 @@ public class PawnController : MonoBehaviour
     {
         // FIXME: This relies on the fact that pawn gameobjects are parented to this. 
         // If we end up having to change the pawn parent at some point, we should check if the gameobject is in the gameobjectpawnmap
-
+        /*
         if (obj.transform.parent == this.transform)
             return true;
         else
             return false;
+            */
+
+        return gameObjectPawnMap.ContainsKey(obj);
     }
 
     /// <summary>

@@ -36,7 +36,7 @@ public class HealthDisplayController : MonoBehaviour
         rect.position = new Vector2(DungeonController.instance.width/2, DungeonController.instance.height/2);
 
         StartCoroutine(WaitUntilGenerationComplete());
-        InvokeRepeating("TakeDamageRepeatedly", 5, 1.2f);
+        //InvokeRepeating("TakeDamageRepeatedly", 5, 1.2f);
     }
 
     // FIXME: Create a Controller Base Class which has an on complete callback!

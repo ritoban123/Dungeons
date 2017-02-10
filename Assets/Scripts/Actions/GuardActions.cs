@@ -15,6 +15,22 @@ public static class GuardActions
         g.CurrentState.UpdateAction(g, deltaTime);
     }
 
+    internal static void BasicFightingStateUpdate(Guard g, float deltaTime)
+    {
+        GuardController.instance.GetGameObjectForGuard(g).GetComponent<SpriteRenderer>().color = Color.yellow;
+
+        if (g.AlertedPawn != null && g.AlertedPawn.isDead == false)
+            g.AlertedPawn.TakeDamage(20);
+        else
+        {
+            // we have killed the alerted pawn
+            g.AlertedPawn = null;
+            // BUG: Returning to patrol state semms to work fine, but returning to alert state doesn't workb
+            g.CurrentState.ChangeState(GuardState.PatrolState);
+        }
+        //g.CurrentState.ChangeState(GuardState.PatrolState);
+    }
+
     public static void BasicPatrolStateUpdate(Guard g, float deltaTime)
     {
         // FIXME: These parameters are only for show right now
@@ -130,9 +146,7 @@ public static class GuardActions
         //Debug.Log(Vector2.SqrMagnitude(g.Position - g.AlertedPawn.Position));
         if (Vector2.SqrMagnitude(g.Position - g.AlertedPawn.Position) >= (g.Data.maxChaseRadius * g.Data.maxChaseRadius))
         {
-            // BUG: Once they return to patrol state, they immediately return back to alert state
             //GuardController.instance.GetGameObjectForGuard(g).GetComponent<SpriteRenderer>().color = Color.red;
-
             g.CurrentState.ChangeState(GuardState.PatrolState);
             return;
         }
@@ -143,17 +157,25 @@ public static class GuardActions
             // TODO: Enter fighting state, take away health
             // BUG: We enter patrol state again, and immediately go back to alert state
             //GuardController.instance.GetGameObjectForGuard(g).GetComponent<SpriteRenderer>().color = Color.red;
-
+            // TODO: Let the guards stop 1 tile away from the pawns
             g.AdvancePath(() =>
             {
-                // We may have already returned to patrol state for some other reason. Not checking may throw some errors
-                // This problem should be avoided by calling return after any other change state calls.
-
-                if (g.CurrentState.state != GuardState.PatrolState)
-                    g.CurrentState.ChangeState(GuardState.PatrolState);
+                if (g.CurrentState.state != GuardState.FightingState)
+                    g.CurrentState.ChangeState(GuardState.FightingState);
 
             });
         }
+        if ((g.Position - g.AlertedPawn.Position).magnitude <= 0.4f)
+        {
+            //Debug.Log((g.Position - g.NextTargetPosition).magnitude);
+            // TODO: Enter fighting state, take away health
+            // BUG: We enter patrol state again, and immediately go back to alert state
+            //GuardController.instance.GetGameObjectForGuard(g).GetComponent<SpriteRenderer>().color = Color.red;
+            // TODO: Let the guards stop 1 tile away from the pawns
+            if(g.CurrentState.state != GuardState.FightingState)
+                g.CurrentState.ChangeState(GuardState.FightingState);
+        }
+
     }
 
 }

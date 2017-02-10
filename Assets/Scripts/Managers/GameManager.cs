@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
         instance = this;
     }
 
+
     public void SetupTimer(float seconds, Action<float> updateAction, Action expireAction)
     {
         float timer = 0;

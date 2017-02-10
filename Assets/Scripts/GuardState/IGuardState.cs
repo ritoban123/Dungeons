@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum GuardState { PatrolState, AlertState, ChaseState }
+// FIXME: separate into attacking and defending
+public enum GuardState { PatrolState, AlertState, ChaseState, FightingState }
 
 public interface IGuardState 
 {

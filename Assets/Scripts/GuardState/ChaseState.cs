@@ -45,6 +45,9 @@ public class ChaseState : IGuardState
             case GuardState.ChaseState:
                 Debug.LogError("ChaseState::ChangeState - Can't switch from ChaseState to ChaseState");
                 break;
+            case GuardState.FightingState:
+                guard.CurrentState = guard.fightingState;
+                break;
         }
     }
 }

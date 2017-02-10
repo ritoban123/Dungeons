@@ -35,6 +35,7 @@ public class Guard : Damageable
         patrolState = new PatrolState(this);
         alertState = new AlertState(this);
         chaseState = new ChaseState(this);
+        fightingState = new FightingState(this);
 
         CurrentState = patrolState;
 
@@ -116,11 +117,6 @@ public class Guard : Damageable
 
     // FIXME: Maybe we should create an PathFinding Agent Object, which Guard will inherit from?
     #region AStar
-    public IGuardState CurrentState { get; set; } // QUESTION: Should we override the default settter?
-    public PatrolState patrolState;
-    public AlertState alertState;
-    public ChaseState chaseState;
-
     public List<Vector2> PatrolWayPoints { get; protected set; }
     Queue<Vector2> WaypointQueue;
     public Vector2 NextWayPoint;
@@ -182,6 +178,12 @@ public class Guard : Damageable
     #endregion
 
     #region Guard State Machine
+
+    public IGuardState CurrentState { get; set; } // QUESTION: Should we override the default settter?
+    public PatrolState patrolState;
+    public AlertState alertState;
+    public ChaseState chaseState;
+    public FightingState fightingState;
     public Pawn AlertedPawn = null;
 
     // This is a dictionary that allows the guardActions to set parameters that belong to a specific guard

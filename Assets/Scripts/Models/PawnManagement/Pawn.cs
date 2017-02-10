@@ -40,6 +40,17 @@ public class Pawn : Damageable
         }
     }
 
+    public override void TakeDamage(int amount)
+    {
+        Health -= amount;
+        if (Health <= 0)
+        {
+            Death();
+        }
+    }
+
+    public bool isDead { get { return Health <= 0; } }
+
     #region AStar
     // FIXME: This is a misnomer. It get returns the next one in the patch, set calculates a path to the final target position.
     // we may need to separate these two out later

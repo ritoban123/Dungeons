@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AlertState : IGuardState
+public class FightingState : IGuardState
 {
     public GuardState state
     {
         get
         {
-            return GuardState.AlertState;
+            return GuardState.FightingState;
         }
     }
 
@@ -17,13 +17,13 @@ public class AlertState : IGuardState
     {
         get
         {
-            return GuardActions.BasicAlertStateUpdate;
+            return GuardActions.BasicFightingStateUpdate;
         }
     }
 
     public Guard guard { get; set; }
 
-    public AlertState(Guard g)
+    public FightingState(Guard g)
     {
         guard = g;
     }
@@ -39,13 +39,13 @@ public class AlertState : IGuardState
                 guard.CurrentState = guard.patrolState;
                 break;
             case GuardState.AlertState:
-                Debug.LogError("AlertState::ChangeState - Can't switch from AlertState to AlertState");
+                guard.CurrentState = guard.fightingState;
                 break;
             case GuardState.ChaseState:
                 guard.CurrentState = guard.chaseState;
                 break;
             case GuardState.FightingState:
-                Debug.LogError("AlertState::ChangeState - Can't switch from AlertState to FightingState");
+                Debug.LogError("FightingState::ChangeState - Can't switch from FightingState to FightingState");
                 break;
         }
     }
