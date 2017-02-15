@@ -99,7 +99,6 @@ public class Pawn : Damageable
     /// <param name="deltaTime"></param>
     public void Update(float deltaTime)
     {
-        // TODO: Add A* pathfinding to get to the destination the player set
         if ((Position - TargetPosition).sqrMagnitude <= deltaTime * 0.4f) 
         {
             if (aStar.path.Count > 0)

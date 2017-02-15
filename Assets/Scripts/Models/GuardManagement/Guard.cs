@@ -131,12 +131,7 @@ public class Guard : Damageable
             WaypointQueue = new Queue<Vector2>(PatrolWayPoints);
         NextWayPoint = WaypointQueue.Dequeue();
         IPath_Node endNode = PathfindingController.instance.tileGraph.dungeon.GetTileAt(Mathf.RoundToInt(NextWayPoint.x), Mathf.RoundToInt(NextWayPoint.y));
-        ChangeDestination(endNode);
-        if (aStar.path == null || aStar.path.Count == 0)
-        {
-            Debug.LogError("A* path is null or empty!");
-            //return;
-        }
+        SetDestination(endNode);
         //aStar.path.Dequeue(); // HACK: Disposing of the first element (where we are right now)
         //aStar.path.Dequeue(); // HACK: The first points in the path seems to be (0,0) for some reaon
     }
@@ -152,7 +147,7 @@ public class Guard : Damageable
         //Debug.Log(NextTargetPosition);
     }
 
-    public void ChangeDestination(IPath_Node dest)
+    public void SetDestination(IPath_Node dest)
     {
         IPath_Node startNode = PathfindingController.instance.tileGraph.dungeon.GetTileAt(Mathf.RoundToInt(X), Mathf.RoundToInt(Y));
         if (aStar == null)

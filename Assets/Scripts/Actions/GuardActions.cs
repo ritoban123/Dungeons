@@ -19,11 +19,13 @@ public static class GuardActions
     {
         GuardController.instance.GetGameObjectForGuard(g).GetComponent<SpriteRenderer>().color = Color.yellow;
 
-        if (g.AlertedPawn != null && g.AlertedPawn.isDead == false)
+        // FIXME: Do not like hard coding in range
+        if (g.AlertedPawn != null && g.AlertedPawn.isDead == false && Vector3.SqrMagnitude(g.Position - g.AlertedPawn.Position) <= deltaTime * 5f)
             g.AlertedPawn.TakeDamage(20);
         else
         {
-            // we have killed the alerted pawn
+            // we have killed the alerted pawn OR it has escaped our radius. This could prove for some interesting gameplay
+            // Maybe you can deposit other pawns to push guards around?
             g.AlertedPawn = null;
             // BUG: Returning to patrol state semms to work fine, but returning to alert state doesn't workb
             g.CurrentState.ChangeState(GuardState.PatrolState);
@@ -58,7 +60,7 @@ public static class GuardActions
             g.CurrentState.ChangeState(GuardState.AlertState);
             return;
         }
-        
+
     }
 
     public static int PawnLayerMask = (1 << PAWN_LAYER_NUMBER);
@@ -85,7 +87,9 @@ public static class GuardActions
 
         expire = () =>
         {
-            if (g.AlertedPawn == null)
+            // HACK: Don't run this function unless we are in alert not
+            // not removing the timer from the game manager
+            if (g.AlertedPawn == null && g.CurrentState.state == GuardState.AlertState)
             {
                 // This is the first time we are running the alert state function
                 Collider2D c = Physics2D.OverlapCircle(g.Position, g.Data.alertRadius, PawnLayerMask);
@@ -104,16 +108,16 @@ public static class GuardActions
 
                         // FIXME: How do guards magically deduce where you want to go? This looks extremely unrealistic 
                         // NOTE: Getting the dungeon directly from the DungeonController would have been easier, but this might work better if at some point Tile does not inherit from IPath_Node
-                        g.ChangeDestination(PathfindingController.instance.tileGraph.dungeon.GetTileAt(Mathf.RoundToInt(g.AlertedPawn.FinalTargetPosition.x), Mathf.RoundToInt(g.AlertedPawn.FinalTargetPosition.y)));
+                        g.SetDestination(PathfindingController.instance.tileGraph.dungeon.GetTileAt(Mathf.RoundToInt(g.AlertedPawn.FinalTargetPosition.x), Mathf.RoundToInt(g.AlertedPawn.FinalTargetPosition.y)));
                         return;
                     }
                 }
-                else
-                {
-                    // A pawn was not found. Go back to patrol state
-                    //GuardController.instance.GetGameObjectForGuard(g).GetComponent<SpriteRenderer>().color = Color.red;
-                    g.CurrentState.ChangeState(GuardState.PatrolState);
-                }
+
+                // A pawn was not found. Go back to patrol state
+                //GuardController.instance.GetGameObjectForGuard(g).GetComponent<SpriteRenderer>().color = Color.red;
+                // BUG: We are returning to patrol state, then immediately returning to alert state!
+                // Maybe create a timer that we cannot become alerted to the same guard more than once every 5 secs
+                g.CurrentState.ChangeState(GuardState.PatrolState);
                 //c.GetComponent<SpriteRenderer>().color = Color.green;
             }
         };
@@ -140,7 +144,7 @@ public static class GuardActions
 
         if (g.aStar.endNode != g.AlertedPawn.aStar.endNode)
         {
-            g.ChangeDestination(g.AlertedPawn.aStar.endNode);
+            g.SetDestination(g.AlertedPawn.aStar.endNode);
         }
 
         //Debug.Log(Vector2.SqrMagnitude(g.Position - g.AlertedPawn.Position));
@@ -172,7 +176,7 @@ public static class GuardActions
             // BUG: We enter patrol state again, and immediately go back to alert state
             //GuardController.instance.GetGameObjectForGuard(g).GetComponent<SpriteRenderer>().color = Color.red;
             // TODO: Let the guards stop 1 tile away from the pawns
-            if(g.CurrentState.state != GuardState.FightingState)
+            if (g.CurrentState.state != GuardState.FightingState)
                 g.CurrentState.ChangeState(GuardState.FightingState);
         }
 

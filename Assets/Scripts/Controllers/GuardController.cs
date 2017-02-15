@@ -55,6 +55,7 @@ public class GuardController : MonoBehaviour
 
     private void SpawnAllGuards()
     {
+        // FIXME: Why is this when we spawn the guards?
         for (int i = 0; i < AllGuardData.Length; i++)
         {
             AllGuardData[i].UpdateAction = GuardActions.BasicGuardUpdate; // This function should handle everything (including states and specific values for each guard)
@@ -97,15 +98,25 @@ public class GuardController : MonoBehaviour
         guardGameObjectMap[guard] = obj;
         gameObjectGuardMap[obj] = guard;
 
-        Action<float> updateAction = (deltaTime) => { guard.Update(deltaTime); obj.transform.position = guard.Position; };
+        Action<float> updateAction = null;
+
+        updateAction = (deltaTime) => {
+            if(guardGameObjectMap.ContainsKey(guard) == false)
+            {
+                GameManager.instance.OnUpdate -= updateAction;
+                return;
+            }
+            guard.Update(deltaTime);
+            obj.transform.position = guard.Position;
+        };
 
         GameManager.instance.OnUpdate += updateAction;
-        guardUpdateActionMap.Add(guard, updateAction);
+        //guardUpdateActionMap.Add(guard, updateAction);
 
         guard.OnDeath += OnGuardDeath;
     }
 
-    protected Dictionary<Guard, Action<float>> guardUpdateActionMap = new Dictionary<Guard, Action<float>>();
+    //protected Dictionary<Guard, Action<float>> guardUpdateActionMap = new Dictionary<Guard, Action<float>>();
 
     protected void OnGuardDeath(Guard g)
     {
@@ -115,7 +126,7 @@ public class GuardController : MonoBehaviour
         guardGameObjectMap.Remove(g);
         gameObjectGuardMap.Remove(obj); 
         Destroy(obj);
-        GameManager.instance.OnUpdate -= guardUpdateActionMap[g]; // HACK to get a copy of the update function!
+        //GameManager.instance.OnUpdate -= guardUpdateActionMap[g]; // HACK to get a copy of the update function!
         HealthDisplayController.instance.RemoveHealthCircle(g);
     }
 

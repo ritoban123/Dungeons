@@ -87,7 +87,7 @@ public class HealthDisplayController : MonoBehaviour
         DamageableImageMap.Remove(d);
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         foreach (Damageable d in DamageableImageMap.Keys)
         {
