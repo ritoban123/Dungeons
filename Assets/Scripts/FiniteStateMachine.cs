@@ -24,7 +24,9 @@ namespace StateMachine
         }
         protected int numOfStates;
 
-        public FiniteStateMachine(/*bool[,] transitionMatrix*/)
+        public object objectToPass { get; protected set; }
+
+        public FiniteStateMachine(object objectToPass = null)
         {
             if (typeof(TState).IsEnum == false)
             {
@@ -33,6 +35,8 @@ namespace StateMachine
             }
 
             if (NumOfStates < 1) throw new ArgumentException(typeof(TState).ToString() + " includes only 1 visible value");
+
+            this.objectToPass = objectToPass;
 
             // FIXME: Add this back in later
 
@@ -61,11 +65,11 @@ namespace StateMachine
 
                 State s = new State();
                 if (update != null)
-                    s.updateAction = (Action<float>)Delegate.CreateDelegate(typeof(Action<float>), update);
+                    s.updateAction = (Action<float, object>)Delegate.CreateDelegate(typeof(Action<float, object>), update);
                 if (enter != null)
-                    s.enterAction = (Action)Delegate.CreateDelegate(typeof(Action), enter);
+                    s.enterAction = (Action<object>)Delegate.CreateDelegate(typeof(Action<object>), enter);
                 if (exit != null)
-                    s.exitAction = (Action)Delegate.CreateDelegate(typeof(Action), exit);
+                    s.exitAction = (Action<object>)Delegate.CreateDelegate(typeof(Action<object>), exit);
 
                 EnumStateMap.Add(state, s);
                 StateEnumMap.Add(s, state);
@@ -74,14 +78,16 @@ namespace StateMachine
             //Debug.Log(StateEnumMap[CurrentState]);
         }
 
+        Action<float> currentUpdateAction;
+
         public void ChangeState(TState state)
         {
             if (CurrentState != null)
             {
                 if (CurrentState.updateAction != null)
-                    GameManager.instance.OnUpdate -= CurrentState.updateAction;
+                    GameManager.instance.OnUpdate -= currentUpdateAction;
                 if (CurrentState.exitAction != null)
-                    CurrentState.exitAction();
+                    CurrentState.exitAction(objectToPass);
             }
 
 
@@ -89,9 +95,10 @@ namespace StateMachine
             CurrentState = EnumStateMap[state];
 
             if (CurrentState.enterAction != null)
-                CurrentState.enterAction();
+                CurrentState.enterAction(objectToPass);
             if (CurrentState.updateAction != null)
-                GameManager.instance.OnUpdate += CurrentState.updateAction;
+                currentUpdateAction = (dt) => { CurrentState.updateAction(dt, objectToPass); };
+            GameManager.instance.OnUpdate += currentUpdateAction;
         }
 
     }

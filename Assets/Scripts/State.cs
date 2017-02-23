@@ -8,9 +8,9 @@ namespace StateMachine
 {
     public class State
     {
-        public Action<float> updateAction;
-        public Action enterAction;
-        public Action exitAction;
+        public Action<float, object> updateAction;
+        public Action<object> enterAction;
+        public Action<object> exitAction;
 
     }
 }
